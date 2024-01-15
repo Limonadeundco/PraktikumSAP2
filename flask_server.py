@@ -23,7 +23,6 @@ class Server():
         except ValueError:
             return flask.Response("Invalid id", status=404)
         
-        print(column)
         if column not in ["name", "price", "description", "count"]:
             return flask.Response("Column not found", status=404)
         
@@ -51,7 +50,7 @@ class Server():
         if database_response == []:
             return flask.Response("Product not found", status=404)
         
-        return flask.jsonify(database_response)
+        return flask.jsonify(product={"id": database_response[0][0], "name": database_response[0][1], "price": database_response[0][2], "description": database_response[0][3], "count": database_response[0][4]})
     
     
     @app.route("/get_all_products/<limit>", methods=["GET"])

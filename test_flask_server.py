@@ -23,7 +23,7 @@ class TestFlaskServer(unittest.TestCase):
         try:
             self.assertEqual(response.data, b'[[1]]\n')  # expect a tuple with an integer
         except AssertionError:
-            print("Unexpected response data:", response.data)
+            self.fail("Unexpected response data:" + str(response.data))
             raise
         self.assertEqual(response.status_code, 200)
         
@@ -31,7 +31,7 @@ class TestFlaskServer(unittest.TestCase):
         try:
             self.assertEqual(response.data, b'[[1.0]]\n')
         except AssertionError:
-            print("Unexpected response data:", response.data)
+            self.fail("Unexpected response data:" + str(response.data))
             raise
         self.assertEqual(response.status_code, 200)
         
@@ -39,7 +39,7 @@ class TestFlaskServer(unittest.TestCase):
         try:
             self.assertEqual(response.data, b'[["test_data"]]\n')
         except AssertionError:
-            print("Unexpected response data:", response.data)
+            self.fail("Unexpected response data:" + str(response.data))
             raise
         
         self.assertEqual(response.status_code, 200)
@@ -48,7 +48,7 @@ class TestFlaskServer(unittest.TestCase):
         try:
             self.assertEqual(response.data, b'[["test_data_desc"]]\n')
         except AssertionError:
-            print("Unexpected response data:", response.data)
+            self.fail("Unexpected response data:" + str(response.data))
             raise
         self.assertEqual(response.status_code, 200)
         
@@ -56,7 +56,7 @@ class TestFlaskServer(unittest.TestCase):
         try:
             self.assertEqual(response.data, b"Column not found")
         except AssertionError:
-            print("Unexpected response data:", response.data)
+            self.fail("Unexpected response data:" + str(response.data))
             raise
         self.assertEqual(response.status_code, 404)
         
@@ -64,7 +64,7 @@ class TestFlaskServer(unittest.TestCase):
         try:
             self.assertEqual(response.data, b"Invalid id")
         except AssertionError:
-            print("Unexpected response data:", response.data)
+            self.fail("Unexpected response data:" + str(response.data))
             raise
         self.assertEqual(response.status_code, 404)
         
@@ -72,7 +72,7 @@ class TestFlaskServer(unittest.TestCase):
         try:
             self.assertEqual(response.data, b"Product not found")
         except AssertionError:
-            print("Unexpected response data:", response.data)
+            self.fail("Unexpected response data:" + str(response.data))
             raise
         
     def test_recommended_products(self):
@@ -93,8 +93,7 @@ class TestFlaskServer(unittest.TestCase):
         try:
             self.assertEqual(response.data, b"[('test_data5',), ('test_data4',), ('test_data3',)]")
         except AssertionError:
-            print("Unexpected response data:", response.data)
-            raise
+            self.fail("Unexpected response data:" + str(response.data))
         self.assertEqual(response.status_code, 200)
         
     def test_get_all_products(self):
@@ -114,7 +113,7 @@ class TestFlaskServer(unittest.TestCase):
         try:
             self.assertEqual(response.data, b"[('test_data',), ('test_data4',), ('test_data2',), ('test_data3',), ('test_data5',)]")
         except AssertionError:
-            print("Unexpected response data:", response.data)
+            self.fail("Unexpected response data:" + str(response.data))
             raise
         self.assertEqual(response.status_code, 200)
         
@@ -135,7 +134,7 @@ class TestFlaskServer(unittest.TestCase):
         try:
             self.assertEqual(response.data, b"[('test_data', 1.0, 'test_data_desc', 1)]")
         except AssertionError:
-            print("Unexpected response data:", response.data)
+            self.fail("Unexpected response data:" + str(response.data))
             raise
         self.assertEqual(response.status_code, 200)
         
@@ -143,7 +142,7 @@ class TestFlaskServer(unittest.TestCase):
         try:
             self.assertEqual(response.data, b"Product not found")
         except AssertionError:
-            print("Unexpected response data:", response.data)
+            self.fail("Unexpected response data:" + str(response.data))
             raise
         self.assertEqual(response.status_code, 404)
         
@@ -151,7 +150,7 @@ class TestFlaskServer(unittest.TestCase):
         try:
             self.assertEqual(response.data, b"Invalid id")
         except AssertionError:
-            print("Unexpected response data:", response.data)
+            self.fail("Unexpected response data:" + str(response.data))
             raise
         self.assertEqual(response.status_code, 404)
         
