@@ -230,6 +230,38 @@ class TestFlaskServer(unittest.TestCase):
         self.assertEqual(response.data, b"Invalid value")
         self.assertEqual(response.status_code, 404)
         
+    def test_remove_product(self):
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data", 1.0, "test_data_desc", 1))
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data4", 1.0, "test_data_desc4", 4))
+        
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 1, price = 1.0, name = 'test_data', description = 'test_data_desc'", "id = 1")
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 4, price = 1.0, name = 'test_data4', description = 'test_data_desc4'", "id = 4")
+        
+        database_commands.DataBase().delete_data(self.conn, self.cursor, "products", "id = 999")
+        
+        response = self.app.delete("/remove_product/1")
+        #check if data was updated in the database
+        self.cursor.execute("SELECT count FROM products WHERE id = 1")
+        row = self.cursor.fetchone()
+        self.assertIsNone(row)
+        self.assertEqual(response.data, b"Product removed")
+        self.assertEqual(response.status_code, 200)
+        
+        response = self.app.delete("/remove_product/4")
+        self.cursor.execute("SELECT count FROM products WHERE id = 4")
+        row = self.cursor.fetchone()
+        self.assertIsNone(row)
+        self.assertEqual(response.data, b"Product removed")
+        self.assertEqual(response.status_code, 200)
+        
+        response = self.app.delete("/remove_product/999")
+        self.assertEqual(response.data, b"Product not found")
+        self.assertEqual(response.status_code, 404)
+        
+        response = self.app.delete("/remove_product/invalid_id")
+        self.assertEqual(response.data, b"Invalid id")
+        self.assertEqual(response.status_code, 404)
+        
         
         
     
