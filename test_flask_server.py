@@ -187,6 +187,50 @@ class TestFlaskServer(unittest.TestCase):
             self.fail("Unexpected response data:" + str(response.data))
             raise
         self.assertEqual(response.status_code, 404)
+    
+    def test_update_product(self):
+        
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data", 1.0, "test_data_desc", 1))
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data4", 1.0, "test_data_desc4", 4))
+        
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 1, price = 1.0, name = 'test_data', description = 'test_data_desc'", "id = 1")
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 4, price = 1.0, name = 'test_data4', description = 'test_data_desc4'", "id = 4")
+        
+        database_commands.DataBase().delete_data(self.conn, self.cursor, "products", "id = 999")
+        
+        response = self.app.put("/update_product/1/count=2")
+        #check if data was updated in the database
+        self.cursor.execute("SELECT count FROM products WHERE id = 1")
+        row = self.cursor.fetchone()
+        self.assertEqual(row[4], 2)
+        self.assertEqual(response.data, b"Product updated")
+        self.assertEqual(response.status_code, 200)
+        
+        #before the invalid, test another valid update
+        response = self.app.put("/update_product/4/count=3")
+        self.cursor.execute("SELECT count FROM products WHERE id = 4")
+        row = self.cursor.fetchone()
+        self.assertEqual(row[4], 3)
+        self.assertEqual(response.data, b"Product updated")
+        self.assertEqual(response.status_code, 200)
+        
+        response = self.app.put("/update_product/999/count=2")
+        self.assertEqual(response.data, b"Product not found")
+        self.assertEqual(response.status_code, 404)
+        
+        response = self.app.put("/update_product/invalid_id/count=2")
+        self.assertEqual(response.data, b"Invalid id")
+        self.assertEqual(response.status_code, 404)
+        
+        response = self.app.put("/update_product/1/invalid_column=2")
+        self.assertEqual(response.data, b"Column not found")
+        self.assertEqual(response.status_code, 404)
+        
+        response = self.app.put("/update_product/1/count=invalid_value")
+        self.assertEqual(response.data, b"Invalid value")
+        self.assertEqual(response.status_code, 404)
+        
+        
         
     
     def tearDown(self):

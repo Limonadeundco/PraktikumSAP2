@@ -1,8 +1,8 @@
 import requests
 import json
 
-url = "http://127.0.0.1:5000/update_product/1/id=3"
+url = "https://silver-goldfish-7xg65j5rx5xhww4g-5000.app.github.dev/add_product/Testaaaaaa&10&Test&10"
 
-response = requests.put(url)
+response = requests.post(url)
 
 print(response.text)
