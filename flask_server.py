@@ -7,7 +7,7 @@ app = flask.Flask(__name__)
 class Server():
     def __init__(self):
         cursor, connection = dataBase.connect_database("database.db")
-        dataBase.create_table(cursor, connection, "products", "name TEXT, price REAL, description TEXT, count INTEGER")
+        dataBase.create_table(cursor, connection, "products", "id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, description TEXT, count INTEGER")
         
     @app.route("/get_product/<product_id>/<column>", methods=["GET"])
     def get_data(product_id, column):
