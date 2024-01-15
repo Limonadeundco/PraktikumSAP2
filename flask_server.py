@@ -165,7 +165,7 @@ class Server():
         
         dataBase.delete_data(connection, cursor, "products", f"id = {product_id}")
         
-        return flask.Response("Product deleted", status=200)
+        return flask.Response("Product removed", status=200)
 
 
 
