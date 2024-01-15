@@ -149,8 +149,32 @@ class Server():
         dataBase.insert_data(connection, cursor, "products", "name, price, description, count", (name, price, description, count))
         
         return flask.Response("Product added", status=200)
-
     
+    @app.route("/remove_product/<product_id>", methods=["DELETE"])
+    def remove_product(product_id):
+        try:
+            product_id = int(product_id)
+        except ValueError:
+            return flask.Response("Invalid id", status=404)
+        
+        connection, cursor = dataBase.connect_database("database.db")
+        
+        dataBase_response = dataBase.select_data(cursor, "products", "*", f"id = {product_id}")
+        if dataBase_response == []:
+            return flask.Response("Product not found", status=404)
+        
+        dataBase.delete_data(connection, cursor, "products", f"id = {product_id}")
+        
+        return flask.Response("Product deleted", status=200)
+
+
+
+
+################################################################
+#                                                              #
+#                           Main                               #
+#                                                              #
+################################################################    
 if __name__ == "__main__":
     Server = Server()
     app.run(debug=True)
