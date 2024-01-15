@@ -67,7 +67,12 @@ class Server():
         if database_response is None:
             return flask.Response("No Products found", status=404)
         
-        return flask.jsonify(database_response)
+        response = []
+        for product in database_response:
+            product = {"product": {"id": product[0], "name": product[1], "price": product[2], "description": product[3], "count": product[4]}}
+            response.append(product)
+        
+        return flask.jsonify(products=response)
     
     @app.route("/get_all_products", methods=["GET"])
     def get_all_products_no_limit():
@@ -78,7 +83,12 @@ class Server():
         if database_response is None:
             return flask.Response("No Products found", status=404)
         
-        return flask.jsonify(database_response)
+        response = []
+        for product in database_response:
+            product = {"product": {"id": product[0], "name": product[1], "price": product[2], "description": product[3], "count": product[4]}}
+            response.append(product)
+        
+        return flask.jsonify(products=response)
     
 if __name__ == "__main__":
     Server = Server()
