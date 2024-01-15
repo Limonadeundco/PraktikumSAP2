@@ -4,6 +4,9 @@ from database_commands import *
 dataBase = DataBase()
 app = flask.Flask(__name__)
 
+
+allowed_columns = ["name", "price", "description", "count"]
+
 class Server():
     def __init__(self):
         connection, cursor = dataBase.connect_database("database.db")
@@ -25,7 +28,7 @@ class Server():
         except ValueError:
             return flask.Response("Invalid id", status=404)
         
-        if column not in ["name", "price", "description", "count"]:
+        if column not in allowed_columns:
             return flask.Response("Column not found", status=404)
         
         _, cursor = dataBase.connect_database("database.db")
@@ -45,14 +48,20 @@ class Server():
         except ValueError:
             return flask.Response("Invalid id", status=404)
         
-        _, cursor = dataBase.connect_database("database.db")
+        conn, cursor = dataBase.connect_database("database.db")
         
         database_response = dataBase.select_data(cursor, "products", "*", f"id = {product_id}")
         
         if database_response == []:
             return flask.Response("Product not found", status=404)
         
-        return flask.jsonify(product={"id": database_response[0][0], "name": database_response[0][1], "price": database_response[0][2], "description": database_response[0][3], "count": database_response[0][4]})
+        # Fetch column names from cursor description
+        column_names = [column[0] for column in cursor.description]
+
+        # Create a dictionary for the product using column names
+        product = {column_names[i]: database_response[0][i] for i in range(len(column_names))}
+
+        return flask.jsonify(product=product)
     
     
     ################################################################
@@ -110,7 +119,7 @@ class Server():
         except ValueError:
             return flask.Response("Invalid id", status=404)
         
-        if column not in ["name", "price", "description", "count"]:
+        if column not in allowed_columns:
             return flask.Response("Column not found", status=404)
         
         if column in ["name", "description"]:

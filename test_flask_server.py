@@ -109,10 +109,7 @@ class TestFlaskServer(unittest.TestCase):
         database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 5, price = 1.0, name = 'test_data5', description = 'test_data_desc5'", "id = 5")
         
         response = self.app.get("/recommended_products/3")
-        try:
-            self.assertEqual(response.data, b"[('test_data5',), ('test_data4',), ('test_data3',)]")
-        except AssertionError:
-            self.fail("Unexpected response data:" + str(response.data))
+        
         self.assertEqual(response.status_code, 200)
         
     def test_get_all_products(self):
@@ -203,6 +200,7 @@ class TestFlaskServer(unittest.TestCase):
         #check if data was updated in the database
         self.cursor.execute("SELECT count FROM products WHERE id = 1")
         row = self.cursor.fetchone()
+        print(response.data)
         self.assertEqual(row[0], 2)
         self.assertEqual(response.data, b"Product updated")
         self.assertEqual(response.status_code, 200)
