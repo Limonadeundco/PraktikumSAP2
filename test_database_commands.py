@@ -1,12 +1,98 @@
 import unittest
 import database_commands
+import sqlite3
+
 
 class TestDatabaseCommands(unittest.TestCase):
-    def SetUp(self):
-        pass
+    def setUp(self):
+        self.DataBase = database_commands.DataBase()
+        
     
-    def TearDown(self):
-        pass
+    def tearDown(self):
+        self.DataBase = None
+    
+    def test_connect_database(self):
+        cursor, connection = self.DataBase.connect_database("test")
+        self.assertIsInstance(cursor, sqlite3.Cursor)
+        self.assertIsInstance(connection, sqlite3.Connection)
+
+        cursor, connection = self.DataBase.connect_database("test.db")
+        self.assertIsInstance(cursor, sqlite3.Cursor)
+        self.assertIsInstance(connection, sqlite3.Connection)
+    
+    def test_disconnect_database(self):
+        connection = sqlite3.connect("test.db")
+        connection = self.DataBase.disconnect_database(connection)
+        self.assertIsNone(connection, "Connection was not closed")
+        
+    def test_create_table(self):
+        cursor, connection = self.DataBase.connect_database("test")
+        self.DataBase.create_table(cursor, connection, "test", "test")
+        try:
+            cursor.execute("SELECT * FROM test")
+            cursor.fetchone()
+        except sqlite3.OperationalError:
+            self.fail("Table 'test' was not created")
+        self.DataBase.drop_table(cursor, connection, "test")
+        self.DataBase.disconnect_database(connection)
+        
+    def test_insert_data(self):
+        cursor, connection = self.DataBase.connect_database("test")
+        self.DataBase.create_table(cursor, connection, "test", "test")
+        self.DataBase.insert_data(cursor, connection, "test", "test", ("test",))
+        cursor.execute("SELECT * FROM test")
+        row = cursor.fetchone()
+        self.assertIsNotNone(row, "No data was inserted")
+        self.DataBase.drop_table(cursor, connection, "test")
+        self.DataBase.disconnect_database(connection)
+        
+    def test_select_data(self):
+        cursor, connection = self.DataBase.connect_database("test")
+        self.DataBase.create_table(cursor, connection, "test", "test")
+        self.DataBase.insert_data(cursor, connection, "test", "test", ("test",))
+        cursor.execute("SELECT * FROM test")
+        row = cursor.fetchone()
+        self.assertIsNotNone(row, "No data was found")
+        self.DataBase.drop_table(cursor, connection, "test")
+        self.DataBase.disconnect_database(connection)
+        
+    def test_update_data(self):
+        cursor, connection = self.DataBase.connect_database("test")
+        self.DataBase.create_table(cursor, connection, "test", "test")
+        self.DataBase.insert_data(cursor, connection, "test", "test", ("test",))
+        self.DataBase.update_data(cursor, connection, "test", "test='updated'", "test='test'")
+        cursor.execute("SELECT * FROM test WHERE test='updated'")
+        row = cursor.fetchone()
+        self.assertIsNotNone(row, "Data was not updated")
+        self.DataBase.drop_table(cursor, connection, "test")
+        self.DataBase.disconnect_database(connection)
+        
+    def test_delete_data(self):
+        cursor, connection = self.DataBase.connect_database("test")
+        self.DataBase.create_table(cursor, connection, "test", "test")
+        self.DataBase.insert_data(cursor, connection, "test", "test", ("test",))
+        self.DataBase.delete_data(cursor, connection, "test", "test='test'")
+        cursor.execute("SELECT * FROM test WHERE test='test'")
+        row = cursor.fetchone()
+        self.assertIsNone(row, "Data was not deleted")
+        self.DataBase.drop_table(cursor, connection, "test")
+        self.DataBase.disconnect_database(connection)
+        
+    def test_drop_table(self):
+        cursor, connection = self.DataBase.connect_database("test")
+        self.DataBase.create_table(cursor, connection, "test", "test")
+        self.DataBase.insert_data(cursor, connection, "test", "test", ("test",))
+        self.DataBase.drop_table(cursor, connection, "test")
+        try:
+            cursor.execute("SELECT * FROM test")
+            cursor.fetchone()
+            self.fail("Table 'test' was not dropped")
+        except sqlite3.OperationalError:
+            pass
+        self.DataBase.disconnect_database(connection)
+        
+        
+    
     
     
         
