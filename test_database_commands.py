@@ -65,7 +65,12 @@ class TestDatabaseCommands(unittest.TestCase):
         cursor.execute("SELECT * FROM test WHERE id=3")
         row = cursor.fetchone()
         self.assertIsNotNone(row, "No data was inserted")
-        
+
+        self.DataBase.insert_data_at_specific_id(connection, cursor, "", "", ("",), 4)
+        cursor.execute("SELECT * FROM test WHERE id=4")
+        row = cursor.fetchone()
+        self.assertIsNotNone(row, "No data was inserted")
+
         self.DataBase.drop_table(connection, cursor, "test")
         self.DataBase.disconnect_database(connection)
         
