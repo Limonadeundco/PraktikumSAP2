@@ -18,6 +18,7 @@ class TestFlaskServer(unittest.TestCase):
     def test_get_data(self):
         database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data", 1.0, "test_data_desc", 1))
         database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 1, price = 1.0, name = 'test_data', description = 'test_data_desc'", "id = 1")
+        database_commands.DataBase().delete_data(self.conn, self.cursor, "products", "id = 999")
         response = self.app.get("/get_product/1/count")
         try:
             self.assertEqual(response.data, b"[(1,)]")  # expect a tuple with an integer
