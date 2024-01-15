@@ -11,7 +11,6 @@ class TestFlaskServer(unittest.TestCase):
         cls.conn, cls.cursor = database_commands.DataBase().connect_database("database.db")
         database_commands.DataBase().drop_table(cls.conn, cls.cursor, "products")
         database_commands.DataBase().create_table(cls.conn, cls.cursor, "products", "id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, description TEXT, count INTEGER")
-        database_commands.DataBase().insert_data(cls.conn, cls.cursor, "products", "name, price, description, count", ("Test", 10.0, "Test", 10))
         
     @classmethod
     def tearDownClass(cls):
@@ -27,6 +26,8 @@ class TestFlaskServer(unittest.TestCase):
         self.Server = flask_server.Server()
         self.app.testing = True
         self.conn, self.cursor = database_commands.DataBase().connect_database("database.db")
+        database_commands.DataBase().drop_table(self.conn, self.cursor, "products")
+        database_commands.DataBase().create_table(self.conn, self.cursor, "products", "id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, description TEXT, count INTEGER")
 
     
     def test_insert_data(self):
@@ -190,14 +191,14 @@ class TestFlaskServer(unittest.TestCase):
     
     def test_update_product(self):
         
-        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data", 1.0, "test_data_desc", 1))
-        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data4", 1.0, "test_data_desc4", 4))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "products", "id, name, price, description, count", (1, "test_data", 1.0, "test_data_desc", 1))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "products", "id, name, price, description, count", (4, "test_data4", 1.0, "test_data_desc4", 4))
         
         database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 1, price = 1.0, name = 'test_data', description = 'test_data_desc'", "id = 1")
         database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 4, price = 1.0, name = 'test_data4', description = 'test_data_desc4'", "id = 4")
         
         database_commands.DataBase().delete_data(self.conn, self.cursor, "products", "id = 999")
-        
+
         response = self.app.put("/update_product/1/count=2")
         #check if data was updated in the database
         self.cursor.execute("SELECT count FROM products WHERE id = 1")
@@ -231,8 +232,8 @@ class TestFlaskServer(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
         
     def test_remove_product(self):
-        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data", 1.0, "test_data_desc", 1))
-        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data4", 1.0, "test_data_desc4", 4))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "products", "id, name, price, description, count", (1, "test_data", 1.0, "test_data_desc", 1))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "products", "id, name, price, description, count", (4, "test_data4", 1.0, "test_data_desc4", 4))
         
         database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 1, price = 1.0, name = 'test_data', description = 'test_data_desc'", "id = 1")
         database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 4, price = 1.0, name = 'test_data4', description = 'test_data_desc4'", "id = 4")

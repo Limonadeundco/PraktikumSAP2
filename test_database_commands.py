@@ -38,7 +38,8 @@ class TestDatabaseCommands(unittest.TestCase):
         
     def test_insert_data(self):
         connection, cursor = self.DataBase.connect_database("test")
-        self.DataBase.create_table(connection, cursor, "test", "test")
+        self.DataBase.drop_table(connection, cursor, "test")
+        self.DataBase.create_table(connection, cursor, "test", "test TEXT")
         self.DataBase.insert_data(connection, cursor, "test", "test", ("test",))
         cursor.execute("SELECT * FROM test")
         row = cursor.fetchone()
@@ -48,29 +49,23 @@ class TestDatabaseCommands(unittest.TestCase):
         
     def test_insert_data_at_specific_id(self):
         connection, cursor = self.DataBase.connect_database("test")
-        self.DataBase.create_table(connection, cursor, "test", "test")
-        self.DataBase.insert_data_at_specific_id(connection, cursor, "test", "test", ("test",), 1)
-        cursor.execute("SELECT * FROM test")
-        row = cursor.fetchone()
-        self.assertIsNotNone(row, "No data was inserted")
+        self.DataBase.create_table(connection, cursor, "test", "id INTEGER PRIMARY KEY AUTOINCREMENT, test")
         
-        #again but with a different id
-        self.DataBase.insert_data_at_specific_id(connection, cursor, "test", "test", ("test",), 2)
-        cursor.execute("SELECT * FROM test WHERE id=2")
-        row = cursor.fetchone()
-        self.assertIsNotNone(row, "No data was inserted")
-        
-        #again but with a different id
-        self.DataBase.insert_data_at_specific_id(connection, cursor, "test", "test", ("test",), 3)
+        self.DataBase.insert_data_at_specific_id(connection, cursor, "test", "id, test", (3, "test"))
         cursor.execute("SELECT * FROM test WHERE id=3")
         row = cursor.fetchone()
         self.assertIsNotNone(row, "No data was inserted")
 
-        self.DataBase.insert_data_at_specific_id(connection, cursor, "", "", ("",), 4)
-        cursor.execute("SELECT * FROM test WHERE id=4")
+        self.DataBase.insert_data_at_specific_id(connection, cursor, "test", "id, test", (2, "test"))
+        cursor.execute("SELECT * FROM test WHERE id=2")
         row = cursor.fetchone()
         self.assertIsNotNone(row, "No data was inserted")
-
+        
+        self.DataBase.insert_data_at_specific_id(connection, cursor, "test", "id, test", (8, "test"))
+        cursor.execute("SELECT * FROM test WHERE id=8")
+        row = cursor.fetchone()
+        self.assertIsNotNone(row, "No data was inserted")
+        
         self.DataBase.drop_table(connection, cursor, "test")
         self.DataBase.disconnect_database(connection)
         

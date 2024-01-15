@@ -24,7 +24,7 @@ class DataBase():
         cursor.execute(query, data)
         connection.commit()
         
-    def insert_data_at_specific_id(self, connection, cursor, table, columns, data, id):
+    def insert_data_at_specific_id(self, connection, cursor, table, columns, data):
         placeholders = ', '.join('?' for item in data)
         query = f"INSERT INTO {table} ({columns}) VALUES ({placeholders})"
         cursor.execute(query, data)
