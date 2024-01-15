@@ -1,5 +1,5 @@
 import flask
-from database_commands import *
+from database_commands.database_commands import *
 
 dataBase = DataBase()
 app = flask.Flask(__name__)
