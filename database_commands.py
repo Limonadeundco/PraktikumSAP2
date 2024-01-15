@@ -8,17 +8,17 @@ class DataBase():
         connection = sqlite3.connect(name)
         cursor = connection.cursor()
         
-        return cursor, connection
+        return connection, cursor
     
     def disconnect_database(self, connection):
         connection.close()
         return None
         
-    def create_table(self, cursor, connection, name, columns):
+    def create_table(self, connection, cursor, name, columns):
         cursor.execute("CREATE TABLE IF NOT EXISTS " + name + " (" + columns + ")")
         connection.commit()
             
-    def insert_data(self, cursor, connection, table, columns, data):
+    def insert_data(self, connection, cursor, table, columns, data):
         placeholders = ', '.join('?' for item in data)
         query = f"INSERT INTO {table} ({columns}) VALUES ({placeholders})"
         cursor.execute(query, data)
@@ -28,14 +28,14 @@ class DataBase():
         cursor.execute("SELECT " + columns + " FROM " + table + " WHERE " + condition)
         return cursor.fetchall()
     
-    def update_data(self, cursor, connection, table, columns, condition):
+    def update_data(self, connection, cursor, table, columns, condition):
         cursor.execute("UPDATE " + table + " SET " + columns + " WHERE " + condition)
         connection.commit()
         
-    def delete_data(self, cursor, connection, table, condition):
+    def delete_data(self, connection, cursor, table, condition):
         cursor.execute("DELETE FROM " + table + " WHERE " + condition)
         connection.commit()
         
-    def drop_table(self, cursor, connection, table):
+    def drop_table(self, connection, cursor, table):
         cursor.execute("DROP TABLE " + table)
         connection.commit()
