@@ -8,7 +8,7 @@ class TestDatabaseCommands(unittest.TestCase):
         self.DataBase = database_commands.DataBase()
         self.conn, self.cursor = self.DataBase.connect_database("test")
         self.DataBase.drop_table(self.conn, self.cursor, "test")
-        self.DataBase.create_table(self.conn, self.cursor, "test", "test")
+        self.DataBase.create_table(self.conn, self.cursor, "test", "id INTEGER PRIMARY KEY AUTOINCREMENT, test")
         
     
     def tearDown(self):
@@ -49,26 +49,24 @@ class TestDatabaseCommands(unittest.TestCase):
         self.DataBase.disconnect_database(self.conn)
         
     def test_insert_data_at_specific_id(self):
-        connection, cursor = self.DataBase.connect_database("test")
-        self.DataBase.create_table(connection, cursor, "test", "id INTEGER PRIMARY KEY AUTOINCREMENT, test")
         
-        self.DataBase.insert_data_at_specific_id(connection, cursor, "test", "id, test", (3, "test"))
-        cursor.execute("SELECT * FROM test WHERE id=3")
-        row = cursor.fetchone()
+        self.DataBase.insert_data_at_specific_id(self.conn, self.cursor, "test", "id, test", (3, "test"))
+        self.cursor.execute("SELECT * FROM test WHERE id=3")
+        row = self.cursor.fetchone()
         self.assertIsNotNone(row, "No data was inserted")
 
-        self.DataBase.insert_data_at_specific_id(connection, cursor, "test", "id, test", (2, "test"))
-        cursor.execute("SELECT * FROM test WHERE id=2")
-        row = cursor.fetchone()
+        self.DataBase.insert_data_at_specific_id(self.conn, self.cursor, "test", "id, test", (2, "test"))
+        self.cursor.execute("SELECT * FROM test WHERE id=2")
+        row = self.cursor.fetchone()
         self.assertIsNotNone(row, "No data was inserted")
         
-        self.DataBase.insert_data_at_specific_id(connection, cursor, "test", "id, test", (8, "test"))
-        cursor.execute("SELECT * FROM test WHERE id=8")
-        row = cursor.fetchone()
+        self.DataBase.insert_data_at_specific_id(self.conn, self.cursor, "test", "id, test", (8, "test"))
+        self.cursor.execute("SELECT * FROM test WHERE id=8")
+        row = self.cursor.fetchone()
         self.assertIsNotNone(row, "No data was inserted")
         
-        self.DataBase.drop_table(connection, cursor, "test")
-        self.DataBase.disconnect_database(connection)
+        self.DataBase.drop_table(self.conn, self.cursor, "test")
+        self.DataBase.disconnect_database(self.conn)
         
         
         
@@ -123,15 +121,12 @@ class TestDatabaseCommands(unittest.TestCase):
         self.DataBase.disconnect_database(connection)
         
     def test_clear_table(self):
-        connection, cursor = self.DataBase.connect_database("test")
-        self.DataBase.create_table(connection, cursor, "test", "test")
-        self.DataBase.insert_data(connection, cursor, "test", "test", ("test",))
-        self.DataBase.clear_table(connection, cursor, "test")
-        cursor.execute("SELECT * FROM test")
-        row = cursor.fetchone()
+        self.DataBase.insert_data(self.conn, self.cursor, "test", "test", ("test",))
+        self.DataBase.clear_table(self.conn, self.cursor, "test")
+        self.cursor.execute("SELECT * FROM test")
+        row = self.cursor.fetchone()
         self.assertIsNone(row, "Table was not cleared")
-        self.DataBase.drop_table(connection, cursor, "test")
-        self.DataBase.disconnect_database(connection)
+        self.DataBase.disconnect_database(self.conn)
         
         
     
