@@ -113,6 +113,10 @@ class Server():
         
         connection, cursor = dataBase.connect_database("database.db")
         
+        dataBase_response = dataBase.select_data(cursor, "products", "*", f"id = {product_id}")
+        if dataBase_response == []:
+            return flask.Response("Product not found", status=404)
+        
         dataBase.update_data(connection, cursor, "products", f"{column} = '{value}'", f"id = {product_id}")
         
         return flask.Response("Product updated", status=200)
