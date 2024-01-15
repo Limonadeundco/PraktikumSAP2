@@ -6,10 +6,14 @@ import sqlite3
 class TestDatabaseCommands(unittest.TestCase):
     def setUp(self):
         self.DataBase = database_commands.DataBase()
+        self.conn, self.cursor = self.DataBase.connect_database("test")
+        self.DataBase.drop_table(self.conn, self.cursor, "test")
+        self.DataBase.create_table(self.conn, self.cursor, "test", "test")
         
     
     def tearDown(self):
         self.DataBase = None
+        
     
     def test_connect_database(self):
         connection, cursor = self.DataBase.connect_database("test")
@@ -26,26 +30,23 @@ class TestDatabaseCommands(unittest.TestCase):
         self.assertIsNone(connection, "Connection was not closed")
         
     def test_create_table(self):
-        connection, cursor = self.DataBase.connect_database("test")
-        self.DataBase.create_table(connection, cursor, "test", "test")
+    
+
         try:
-            cursor.execute("SELECT * FROM test")
-            cursor.fetchone()
+            self.cursor.execute("SELECT * FROM test")
+            self.cursor.fetchone()
         except sqlite3.OperationalError:
             self.fail("Table 'test' was not created")
-        self.DataBase.drop_table(connection, cursor, "test")
-        self.DataBase.disconnect_database(connection)
+        self.DataBase.drop_table(self.conn, self.cursor, "test")
+        self.DataBase.disconnect_database(self.conn)
         
     def test_insert_data(self):
-        connection, cursor = self.DataBase.connect_database("test")
-        self.DataBase.drop_table(connection, cursor, "test")
-        self.DataBase.create_table(connection, cursor, "test", "test TEXT")
-        self.DataBase.insert_data(connection, cursor, "test", "test", ("test",))
-        cursor.execute("SELECT * FROM test")
-        row = cursor.fetchone()
+        self.DataBase.insert_data(self.conn, self.cursor, "test", "test", ("test",))
+        self.cursor.execute("SELECT * FROM test")
+        row = self.cursor.fetchone()
         self.assertIsNotNone(row, "No data was inserted")
-        self.DataBase.drop_table(connection, cursor, "test")
-        self.DataBase.disconnect_database(connection)
+        self.DataBase.drop_table(self.conn, self.cursor, "test")
+        self.DataBase.disconnect_database(self.conn)
         
     def test_insert_data_at_specific_id(self):
         connection, cursor = self.DataBase.connect_database("test")
