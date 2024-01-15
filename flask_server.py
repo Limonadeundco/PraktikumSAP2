@@ -6,6 +6,8 @@ app = flask.Flask(__name__)
 
 
 allowed_columns = ["name", "price", "description", "count"]
+string_colums = ["name", "description"]
+int_colums = ["price", "count"]
 
 class Server():
     def __init__(self):
@@ -67,41 +69,32 @@ class Server():
     #                     Get all products                         #
     #                                                              #
     ################################################################
+    @app.route("/get_all_products", defaults={'limit': None}, methods=["GET"])
     @app.route("/get_all_products/<limit>", methods=["GET"])
     def get_all_products(limit):
-        try:
-            limit = int(limit)
-        except ValueError:
-            return flask.Response("Invalid limit", status=404)
-        
+        if limit is not None:
+            try:
+                limit = int(limit)
+            except ValueError:
+                return flask.Response("Invalid limit", status=404)
+            query = f"id < {limit + 1}"
+        else:
+            query = "1"
+
         _, cursor = dataBase.connect_database("database.db")
-        
-        database_response = dataBase.select_data(cursor, "products", "*", f"id < {limit + 1}")
-        
+
+        database_response = dataBase.select_data(cursor, "products", "*", query)
+
         if database_response is None:
             return flask.Response("No Products found", status=404)
-        
+
+        column_names = [column[0] for column in cursor.description]
+
         response = []
-        for product in database_response:
-            product = {"product": {"id": product[0], "name": product[1], "price": product[2], "description": product[3], "count": product[4]}}
+        for y, product in enumerate(database_response):
+            product = {'product': {column_names[i]: database_response[y][i] for i in range(len(column_names))}}
             response.append(product)
-        
-        return flask.jsonify(products=response)
-    
-    @app.route("/get_all_products", methods=["GET"])
-    def get_all_products_no_limit():
-        _, cursor = dataBase.connect_database("database.db")
-        
-        database_response = dataBase.select_data(cursor, "products", "*", "1")
-        
-        if database_response is None:
-            return flask.Response("No Products found", status=404)
-        
-        response = []
-        for product in database_response:
-            product = {"product": {"id": product[0], "name": product[1], "price": product[2], "description": product[3], "count": product[4]}}
-            response.append(product)
-        
+
         return flask.jsonify(products=response)
     
     
@@ -110,33 +103,39 @@ class Server():
     #                      Update products                         #
     #                                                              #
     ################################################################
-    @app.route("/update_product/<product_id>/<column>=<value>", methods=["PUT"])
-    def update_product(product_id, column, value):
+    @app.route("/update_product/<product_id>/<parameters>", methods=["PUT"])
+    def update_product(product_id, parameters):
         try:
             product_id = int(product_id)
         except ValueError:
             return flask.Response("Invalid id", status=404)
-        
-        if column not in allowed_columns:
-            return flask.Response("Column not found", status=404)
-        
-        if column in ["name", "description"]:
-            value = str(value)
-            
-        elif column in ["price", "count"]:
-            try:
-                value = float(value)
-            except ValueError:
-                return flask.Response("Invalid value", status=404)
-        
+
+        params = parameters.split('&')
+        updates = []
+        for param in params:
+            column, value = param.split('=')
+            if column not in allowed_columns:
+                return flask.Response(f"Column {column} not found", status=404)
+
+            if column in string_colums:
+                value = str(value)
+            elif column in int_colums:
+                try:
+                    value = float(value)
+                except ValueError:
+                    return flask.Response("Invalid value", status=404)
+
+            updates.append(f"{column} = '{value}'")
+
         connection, cursor = dataBase.connect_database("database.db")
-        
-        dataBase_response = dataBase.select_data(cursor, "products", "*", f"id = {product_id}")
-        if dataBase_response == []:
+
+        database_response = dataBase.select_data(cursor, "products", "*", f"id = {product_id}")
+        if database_response == []:
             return flask.Response("Product not found", status=404)
-        
-        dataBase.update_data(connection, cursor, "products", f"{column} = '{value}'", f"id = {product_id}")
-        
+
+        for update in updates:
+            dataBase.update_data(connection, cursor, "products", update, f"id = {product_id}")
+
         return flask.Response("Product updated", status=200)
     
     
@@ -145,18 +144,30 @@ class Server():
     #                   Add / Remove products                      #
     #                                                              #
     ################################################################
-    @app.route("/add_product/name=<name>&price=<price>&description=<description>&count=<count>", methods=["POST"])
-    def add_product(name, price, description, count):
-        try:
-            price = float(price)
-            count = int(count)
-        except ValueError:
-            return flask.Response("Invalid price or count", status=404)
-        
+    @app.route("/add_product/<path:parameters>", methods=["POST"])
+    def add_product(parameters):
+        params = parameters.split('&')
+        data = {}
+        for param in params:
+            key, value = param.split('=')
+            if key not in allowed_columns:
+                return flask.Response(f"Column {key} not found", status=404)
+            if key in string_colums:
+                value = str(value)
+            elif key in int_colums:
+                try:
+                    value = float(value)
+                except ValueError:
+                    return flask.Response("Invalid value", status=404)
+            data[key] = value
+
         connection, cursor = dataBase.connect_database("database.db")
-        
-        dataBase.insert_data(connection, cursor, "products", "name, price, description, count", (name, price, description, count))
-        
+
+        columns = ', '.join(data.keys())
+        values = tuple(data.values())
+
+        dataBase.insert_data(connection, cursor, "products", columns, values)
+
         return flask.Response("Product added", status=200)
     
     @app.route("/remove_product/<product_id>", methods=["DELETE"])

@@ -30,9 +30,35 @@ class TestFlaskServer(unittest.TestCase):
         database_commands.DataBase().create_table(self.conn, self.cursor, "products", "id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, description TEXT, count INTEGER")
 
     
-    def test_insert_data(self):
-        response = self.app.post("/add_product/name=TestProduct&price=1.0&description=TestDescription&count=1")
+    def test_add_product(self):
+        response = self.app.post("/add_product/name=test_data&price=1.0&description=test_data_desc&count=1")
         self.assertEqual(response.data, b"Product added")
+        self.assertEqual(response.status_code, 200)
+        
+        response = self.app.post("/add_product/name=test_data&price=1.0&description=test_data_desc&count=1")
+        self.assertEqual(response.data, b"Product added")
+        self.assertEqual(response.status_code, 200)
+        
+        response = self.app.post("/add_product/name=test_data&price=1.0&description=test_data_desc&count=invalid_value")
+        self.assertEqual(response.data, b"Invalid value")
+        self.assertEqual(response.status_code, 404)
+        
+        response = self.app.post("/add_product/name=test_data&price=1.0&description=test_data_desc&count=1&invalid_column=invalid_value")
+        self.assertEqual(response.data, b"Column invalid_column not found")
+        self.assertEqual(response.status_code, 404)
+        
+        response = self.app.post("/add_product/name=test_data&price=1.0&description=test_data_desc&count=1&invalid_column=invalid_value&invalid_column2=invalid_value2")
+        self.assertEqual(response.data, b"Column invalid_column not found")
+        self.assertEqual(response.status_code, 404)
+        
+        response = self.app.post("/add_product/name=test_data&price=1.0&description=test_data_desc&count=1&invalid_column=invalid_value&invalid_column2=invalid_value2&invalid_column3=invalid_value3")
+        self.assertEqual(response.data, b"Column invalid_column not found")
+        self.assertEqual(response.status_code, 404)
+        
+        response = self.app.post("/add_product/name=test_data")
+        self.assertEqual(response.data, b"Product added")
+        self.assertEqual(response.status_code, 200)
+        
 
     def test_get_data(self):
         database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data", 1.0, "test_data_desc", 1))
@@ -110,6 +136,9 @@ class TestFlaskServer(unittest.TestCase):
         
         response = self.app.get("/recommended_products/3")
         
+        print(response.data)
+        print(response.status_code)
+        print(response.headers)
         self.assertEqual(response.status_code, 200)
         
     def test_get_all_products(self):
@@ -141,12 +170,19 @@ class TestFlaskServer(unittest.TestCase):
         
         
         response = self.app.get("/get_all_products/10")
-        print(response.data)
+        #print(response.data)
         try:
             self.assertEqual(response.data, expected_data)
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
         self.assertEqual(response.status_code, 200)
+        
+        expected_data = b'{"products":[{"product":{"count":1,"description":"test_data_desc","id":1,"name":"test_data","price":1.0}},{"product":{"count":4,"description":"test_data_desc4","id":2,"name":"test_data4","price":1.0}},{"product":{"count":2,"description":"test_data_desc2","id":3,"name":"test_data2","price":1.0}},{"product":{"count":3,"description":"test_data_desc3","id":4,"name":"test_data3","price":1.0}},{"product":{"count":5,"description":"test_data_desc5","id":5,"name":"test_data5","price":1.0}},{"product":{"count":6,"description":"test_data_desc6","id":6,"name":"test_data6","price":1.0}},{"product":{"count":7,"description":"test_data_desc7","id":7,"name":"test_data7","price":1.0}},{"product":{"count":8,"description":"test_data_desc8","id":8,"name":"test_data8","price":1.0}},{"product":{"count":9,"description":"test_data_desc9","id":9,"name":"test_data9","price":1.0}},{"product":{"count":10,"description":"test_data_desc10","id":10,"name":"test_data10","price":1.0}},{"product":{"count":11,"description":"test_data_desc11","id":11,"name":"test_data11","price":1.0}}]}\n'
+        
+        response = self.app.get("/get_all_products")
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, expected_data)
         
         
     def test_get_product(self):
@@ -222,12 +258,21 @@ class TestFlaskServer(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
         
         response = self.app.put("/update_product/1/invalid_column=2")
-        self.assertEqual(response.data, b"Column not found")
+        self.assertEqual(response.data, b"Column invalid_column not found")
         self.assertEqual(response.status_code, 404)
         
         response = self.app.put("/update_product/1/count=invalid_value")
         self.assertEqual(response.data, b"Invalid value")
         self.assertEqual(response.status_code, 404)
+        
+        response = self.app.put("/update_product/1/count=2&price=1.0&name=test_data&description=test_data_desc")
+        self.assertEqual(response.data, b"Product updated")
+        self.assertEqual(response.status_code, 200)
+        
+        response = self.app.put("/update_product/1/count=2&price=1.0&name=test_data&description=test_data_desc&invalid_column=invalid_value")
+        self.assertEqual(response.data, b"Column invalid_column not found")
+        self.assertEqual(response.status_code, 404)
+        
         
     def test_remove_product(self):
         database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "products", "id, name, price, description, count", (1, "test_data", 1.0, "test_data_desc", 1))
@@ -261,7 +306,7 @@ class TestFlaskServer(unittest.TestCase):
         self.assertEqual(response.data, b"Invalid id")
         self.assertEqual(response.status_code, 404)
         
-    #def test_
+    #def test_get_cart
         
     
     def tearDown(self):
