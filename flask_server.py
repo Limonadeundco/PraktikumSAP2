@@ -111,9 +111,9 @@ class Server():
         if column not in ["name", "price", "description", "count"]:
             return flask.Response("Column not found", status=404)
         
-        _, cursor = dataBase.connect_database("database.db")
+        connection, cursor = dataBase.connect_database("database.db")
         
-        database_response = dataBase.update_data(cursor, "products", column, value, f"id = {product_id}")
+        database_response = dataBase.update_data(connection, cursor, "products", f"{column} = {value}", f"id = {product_id}")
         
         if database_response == []:
             return flask.Response("Product not found", status=404)
