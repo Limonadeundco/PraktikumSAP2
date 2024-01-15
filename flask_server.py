@@ -111,6 +111,15 @@ class Server():
         if column not in ["name", "price", "description", "count"]:
             return flask.Response("Column not found", status=404)
         
+        if column in ["name", "description"]:
+            value = str(value)
+            
+        elif column in ["price", "count"]:
+            try:
+                value = float(value)
+            except ValueError:
+                return flask.Response("Invalid value", status=404)
+        
         connection, cursor = dataBase.connect_database("database.db")
         
         dataBase_response = dataBase.select_data(cursor, "products", "*", f"id = {product_id}")
