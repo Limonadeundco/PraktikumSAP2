@@ -46,6 +46,31 @@ class TestDatabaseCommands(unittest.TestCase):
         self.DataBase.drop_table(connection, cursor, "test")
         self.DataBase.disconnect_database(connection)
         
+    def test_insert_data_at_specific_id(self):
+        connection, cursor = self.DataBase.connect_database("test")
+        self.DataBase.create_table(connection, cursor, "test", "test")
+        self.DataBase.insert_data_at_specific_id(connection, cursor, "test", "test", ("test",), 1)
+        cursor.execute("SELECT * FROM test")
+        row = cursor.fetchone()
+        self.assertIsNotNone(row, "No data was inserted")
+        
+        #again but with a different id
+        self.DataBase.insert_data_at_specific_id(connection, cursor, "test", "test", ("test",), 2)
+        cursor.execute("SELECT * FROM test WHERE id=2")
+        row = cursor.fetchone()
+        self.assertIsNotNone(row, "No data was inserted")
+        
+        #again but with a different id
+        self.DataBase.insert_data_at_specific_id(connection, cursor, "test", "test", ("test",), 3)
+        cursor.execute("SELECT * FROM test WHERE id=3")
+        row = cursor.fetchone()
+        self.assertIsNotNone(row, "No data was inserted")
+        
+        self.DataBase.drop_table(connection, cursor, "test")
+        self.DataBase.disconnect_database(connection)
+        
+        
+        
     def test_select_data(self):
         connection, cursor = self.DataBase.connect_database("test")
         self.DataBase.create_table(connection, cursor, "test", "test")
