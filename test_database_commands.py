@@ -121,6 +121,16 @@ class TestDatabaseCommands(unittest.TestCase):
         self.DataBase.drop_table(connection, cursor, "test")
         self.DataBase.disconnect_database(connection)
         
+    def test_clear_table(self):
+        connection, cursor = self.DataBase.connect_database("test")
+        self.DataBase.create_table(connection, cursor, "test", "test")
+        self.DataBase.insert_data(connection, cursor, "test", "test", ("test",))
+        self.DataBase.clear_table(connection, cursor, "test")
+        cursor.execute("SELECT * FROM test")
+        row = cursor.fetchone()
+        self.assertIsNone(row, "Table was not cleared")
+        self.DataBase.drop_table(connection, cursor, "test")
+        self.DataBase.disconnect_database(connection)
         
         
     
