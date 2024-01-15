@@ -21,7 +21,7 @@ class TestFlaskServer(unittest.TestCase):
         database_commands.DataBase().delete_data(self.conn, self.cursor, "products", "id = 999")
         response = self.app.get("/get_product/1/count")
         try:
-            self.assertEqual(response.data, b"[(1,)]")  # expect a tuple with an integer
+            self.assertEqual(response.data, b'[[1]]\n')  # expect a tuple with an integer
         except AssertionError:
             print("Unexpected response data:", response.data)
             raise
@@ -29,7 +29,7 @@ class TestFlaskServer(unittest.TestCase):
         
         response = self.app.get("/get_product/1/price")
         try:
-            self.assertEqual(response.data, b'[(1.0,)]')
+            self.assertEqual(response.data, b'[[1.0]]\n')
         except AssertionError:
             print("Unexpected response data:", response.data)
             raise
@@ -37,7 +37,7 @@ class TestFlaskServer(unittest.TestCase):
         
         response = self.app.get("/get_product/1/name")
         try:
-            self.assertEqual(response.data, b"[('test_data',)]")
+            self.assertEqual(response.data, b'[["test_data"]]\n')
         except AssertionError:
             print("Unexpected response data:", response.data)
             raise
@@ -46,7 +46,7 @@ class TestFlaskServer(unittest.TestCase):
         
         response = self.app.get("/get_product/1/description")
         try:
-            self.assertEqual(response.data, b"[('test_data_desc',)]")
+            self.assertEqual(response.data, b'[["test_data_desc"]]\n')
         except AssertionError:
             print("Unexpected response data:", response.data)
             raise
