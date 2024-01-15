@@ -25,9 +25,10 @@ class DataBase():
         connection.commit()
         
     def insert_data_at_specific_id(self, connection, cursor, table, columns, data, id):
-        placeholders = ', '.join('?' for item in data)
-        query = f"INSERT INTO {table} ({columns}) VALUES ({placeholders}) WHERE id={id}"
-        cursor.execute(query, data)
+        placeholders1 = ', '.join('?' for item in data)
+        placeholders2 = ', '.join('?' for item in columns.split(", "))
+        query = f"UPDATE {table} SET {placeholders1} = {placeholders2} WHERE id={id}"
+        cursor.execute(query, columns, data)
         connection.commit()
         
     def select_data(self, cursor, table, columns, condition):
