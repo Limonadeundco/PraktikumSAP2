@@ -14,7 +14,9 @@ class Server():
         if column not in ["name", "price", "description", "count"]:
             return flask.Response("Column not found", status=404)
         
-        return str(dataBase.select_data(dataBase.connect_database("database.db"), "products", column, f"id = {product_id}"))
+        _, cursor = dataBase.connect_database("database.db")
+        
+        return str(dataBase.select_data(cursor, "products", column, f"id = {product_id}"))
     
 if __name__ == "__main__":
     app.run(debug=True)
