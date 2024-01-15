@@ -137,7 +137,6 @@ class TestFlaskServer(unittest.TestCase):
         database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 9, price = 1.0, name = 'test_data9', description = 'test_data_desc9'", "id = 9")
         database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 10, price = 1.0, name = 'test_data10', description = 'test_data_desc10'", "id = 10")
         
-        
         expected_data = b'[[1,"test_data",1.0,"test_data_desc",1],[2,"test_data4",1.0,"test_data_desc4",4],[3,"test_data2",1.0,"test_data_desc2",2],[4,"test_data3",1.0,"test_data_desc3",3],[5,"test_data5",1.0,"test_data_desc5",5],[6,"test_data6",1.0,"test_data_desc6",6],[7,"test_data7",1.0,"test_data_desc7",7],[8,"test_data8",1.0,"test_data_desc8",8],[9,"test_data9",1.0,"test_data_desc9",9],[10,"test_data10",1.0,"test_data_desc10",10]]\n'
         
         
