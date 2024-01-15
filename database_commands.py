@@ -47,3 +47,7 @@ class DataBase():
         if cursor.fetchone():
             cursor.execute("DROP TABLE " + table)
         conn.commit()
+        
+    def clear_table(self, connection, cursor, table):
+        cursor.execute("DELETE FROM " + table)
+        connection.commit()
