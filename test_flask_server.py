@@ -62,7 +62,7 @@ class TestFlaskServer(unittest.TestCase):
         
         response = self.app.get("/get_product/invalid_id/count")
         try:
-            self.assertEqual(response.data, b"Data not found")
+            self.assertEqual(response.data, b"Invalid id")
         except AssertionError:
             print("Unexpected response data:", response.data)
             raise
@@ -70,7 +70,7 @@ class TestFlaskServer(unittest.TestCase):
         
         response = self.app.get("/get_product/999/count")
         try:
-            self.assertEqual(response.data, b"Data not found")
+            self.assertEqual(response.data, b"Product not found")
         except AssertionError:
             print("Unexpected response data:", response.data)
             raise
@@ -138,6 +138,22 @@ class TestFlaskServer(unittest.TestCase):
             print("Unexpected response data:", response.data)
             raise
         self.assertEqual(response.status_code, 200)
+        
+        response = self.app.get("/get_product/999")
+        try:
+            self.assertEqual(response.data, b"Product not found")
+        except AssertionError:
+            print("Unexpected response data:", response.data)
+            raise
+        self.assertEqual(response.status_code, 404)
+        
+        response = self.app.get("/get_product/invalid_id")
+        try:
+            self.assertEqual(response.data, b"Invalid id")
+        except AssertionError:
+            print("Unexpected response data:", response.data)
+            raise
+        self.assertEqual(response.status_code, 404)
         
     
     def tearDown(self):
