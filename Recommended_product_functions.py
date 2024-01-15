@@ -1,6 +1,6 @@
 import datetime
 
-class Recommended_product_functions():
+class recommended_product_functions():
     def __init__(self):
         pass
     
@@ -18,7 +18,7 @@ class Recommended_product_functions():
         for i in range(product_count):
             product_id = products_sales[i][0]
             product_sales = products_sales[i][1]
-            self.insert_data(connection, cursor, "recommended_products", "product_id, sales_last_day", (product_id, products_sales,))
+            self.insert_data(connection, cursor, "recommended_products", "product_id, sales_last_day", (product_id, product_sales,))
             
         
     def get_sales_last_day(self, connection, cursor, product_id):
