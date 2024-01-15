@@ -16,7 +16,7 @@ class TestFlaskServer(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.conn, cls.cursor = database_commands.DataBase().connect_database("database.db")
-        database_commands.DataBase().drop_table(cls.conn, cls.cursor, "products")
+        #database_commands.DataBase().drop_table(cls.conn, cls.cursor, "products")
         cls.conn.close()
         cls.conn = None
         cls.cursor = None
@@ -30,8 +30,8 @@ class TestFlaskServer(unittest.TestCase):
 
     
     def test_insert_data(self):
-        response = self.app.post("/update_product/1/count/-1")
-        self.assertEqual(response.data, b"Data inserted")
+        response = self.app.post("/add_product/name=TestProduct&price=1.0&description=TestDescription&count=1")
+        self.assertEqual(response.data, b"Product added")
 
     def test_get_data(self):
         database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data", 1.0, "test_data_desc", 1))
@@ -202,7 +202,7 @@ class TestFlaskServer(unittest.TestCase):
         #check if data was updated in the database
         self.cursor.execute("SELECT count FROM products WHERE id = 1")
         row = self.cursor.fetchone()
-        self.assertEqual(row[4], 2)
+        self.assertEqual(row[0], 2)
         self.assertEqual(response.data, b"Product updated")
         self.assertEqual(response.status_code, 200)
         
@@ -210,7 +210,7 @@ class TestFlaskServer(unittest.TestCase):
         response = self.app.put("/update_product/4/count=3")
         self.cursor.execute("SELECT count FROM products WHERE id = 4")
         row = self.cursor.fetchone()
-        self.assertEqual(row[4], 3)
+        self.assertEqual(row[0], 3)
         self.assertEqual(response.data, b"Product updated")
         self.assertEqual(response.status_code, 200)
         
