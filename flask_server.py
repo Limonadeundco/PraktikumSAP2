@@ -118,6 +118,25 @@ class Server():
         return flask.Response("Product updated", status=200)
     
     
+    ################################################################
+    #                                                              #    
+    #                   Add / Remove products                      #
+    #                                                              #
+    ################################################################
+    @app.route("/add_product/name=<name>&price=<price>&description=<description>&count=<count>", methods=["POST"])
+    def add_product(name, price, description, count):
+        try:
+            price = float(price)
+            count = int(count)
+        except ValueError:
+            return flask.Response("Invalid price or count", status=404)
+        
+        connection, cursor = dataBase.connect_database("database.db")
+        
+        dataBase.insert_data(connection, cursor, "products", "name, price, description, count", (name, price, description, count))
+        
+        return flask.Response("Product added", status=200)
+
     
 if __name__ == "__main__":
     Server = Server()
