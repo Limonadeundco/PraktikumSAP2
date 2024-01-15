@@ -91,6 +91,12 @@ class TestDatabaseCommands(unittest.TestCase):
             pass
         self.DataBase.disconnect_database(connection)
         
+        #drop a table that does not exist
+        connection, cursor = self.DataBase.connect_database("test")
+        self.DataBase.drop_table(connection, cursor, "test")
+        self.DataBase.disconnect_database(connection)
+        
+        
         
     
     

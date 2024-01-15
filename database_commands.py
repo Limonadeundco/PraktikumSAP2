@@ -36,6 +36,8 @@ class DataBase():
         cursor.execute("DELETE FROM " + table + " WHERE " + condition)
         connection.commit()
         
-    def drop_table(self, connection, cursor, table):
-        cursor.execute("DROP TABLE " + table)
-        connection.commit()
+    def drop_table(self, conn, cursor, table):
+        cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table}';")
+        if cursor.fetchone():
+            cursor.execute("DROP TABLE " + table)
+        conn.commit()

@@ -4,6 +4,24 @@ import flask
 import database_commands
 
 class TestFlaskServer(unittest.TestCase):
+    
+    @classmethod
+    def setUpClass(cls):
+        #delete database and reset everything
+        cls.conn, cls.cursor = database_commands.DataBase().connect_database("database.db")
+        database_commands.DataBase().drop_table(cls.conn, cls.cursor, "products")
+        database_commands.DataBase().create_table(cls.conn, cls.cursor, "products", "id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, description TEXT, count INTEGER")
+        database_commands.DataBase().insert_data(cls.conn, cls.cursor, "products", "name, price, description, count", ("Test", 10.0, "Test", 10))
+        
+    @classmethod
+    def tearDownClass(cls):
+        cls.conn, cls.cursor = database_commands.DataBase().connect_database("database.db")
+        database_commands.DataBase().drop_table(cls.conn, cls.cursor, "products")
+        cls.conn.close()
+        cls.conn = None
+        cls.cursor = None
+        
+    
     def setUp(self):
         self.app = flask_server.app.test_client()
         self.Server = flask_server.Server()
@@ -102,20 +120,35 @@ class TestFlaskServer(unittest.TestCase):
         database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data2", 1.0, "test_data_desc2", 2))
         database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data3", 1.0, "test_data_desc3", 3))
         database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data5", 1.0, "test_data_desc5", 5))
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data6", 1.0, "test_data_desc6", 6))
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data7", 1.0, "test_data_desc7", 7))
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data8", 1.0, "test_data_desc8", 8))
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data9", 1.0, "test_data_desc9", 9))
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data10", 1.0, "test_data_desc10", 10))
         
         database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 1, price = 1.0, name = 'test_data', description = 'test_data_desc'", "id = 1")
         database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 4, price = 1.0, name = 'test_data4', description = 'test_data_desc4'", "id = 2")
         database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 2, price = 1.0, name = 'test_data2', description = 'test_data_desc2'", "id = 3")
         database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 3, price = 1.0, name = 'test_data3', description = 'test_data_desc3'", "id = 4")
         database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 5, price = 1.0, name = 'test_data5', description = 'test_data_desc5'", "id = 5")
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 6, price = 1.0, name = 'test_data6', description = 'test_data_desc6'", "id = 6")
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 7, price = 1.0, name = 'test_data7', description = 'test_data_desc7'", "id = 7")
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 8, price = 1.0, name = 'test_data8', description = 'test_data_desc8'", "id = 8")
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 9, price = 1.0, name = 'test_data9', description = 'test_data_desc9'", "id = 9")
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 10, price = 1.0, name = 'test_data10', description = 'test_data_desc10'", "id = 10")
         
-        response = self.app.get("/get_all_products")
+        
+        expected_data = b'[[1,"test_data",1.0,"test_data_desc",1],[2,"test_data4",1.0,"test_data_desc4",4],[3,"test_data2",1.0,"test_data_desc2",2],[4,"test_data3",1.0,"test_data_desc3",3],[5,"test_data5",1.0,"test_data_desc5",5],[6,"test_data6",1.0,"test_data_desc6",6],[7,"test_data7",1.0,"test_data_desc7",7],[8,"test_data8",1.0,"test_data_desc8",8],[9,"test_data9",1.0,"test_data_desc9",9],[10,"test_data10",1.0,"test_data_desc10",10]]\n'
+        
+        
+        response = self.app.get("/get_all_products/10")
+        print(response.data)
         try:
-            self.assertEqual(response.data, b"[('test_data',), ('test_data4',), ('test_data2',), ('test_data3',), ('test_data5',)]")
+            self.assertEqual(response.data, expected_data)
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
-            raise
         self.assertEqual(response.status_code, 200)
+        
         
     def test_get_product(self):
         database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data", 1.0, "test_data_desc", 1))
