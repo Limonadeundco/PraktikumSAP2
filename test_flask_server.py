@@ -2,15 +2,17 @@ import unittest
 import flask_server
 import flask
 import database_commands
+import sqlite3
+import recommended_product_functions
 
 class TestFlaskServer(unittest.TestCase):
     
     @classmethod
     def setUpClass(cls):
-        #delete database and reset everything
+        #delete database and reset everything 
         cls.conn, cls.cursor = database_commands.DataBase().connect_database("database.db")
         database_commands.DataBase().drop_table(cls.conn, cls.cursor, "products")
-        database_commands.DataBase().create_table(cls.conn, cls.cursor, "products", "id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, description TEXT, count INTEGER")
+        database_commands.DataBase().create_table(cls.conn, cls.cursor, "products", "id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, description TEXT, count INTEGER, sales INTEGER")
         
     @classmethod
     def tearDownClass(cls):
@@ -121,25 +123,82 @@ class TestFlaskServer(unittest.TestCase):
             raise
         
     def test_recommended_products(self):
-        # recommended products are products with the highest count
-        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data", 1.0, "test_data_desc", 1))
-        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data4", 1.0, "test_data_desc4", 4))
-        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data2", 1.0, "test_data_desc2", 2))
-        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data3", 1.0, "test_data_desc3", 3))
-        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data5", 1.0, "test_data_desc5", 5))
+        self.recommended_product_functions = recommended_product_functions
+        self.connection = sqlite3.connect("TestRecommendedProductFunctions.db")
+        self.cursor = self.connection.cursor()
+        self.dataBase = database_commands.DataBase()
         
-        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 1, price = 1.0, name = 'test_data', description = 'test_data_desc'", "id = 1")
-        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 4, price = 1.0, name = 'test_data4', description = 'test_data_desc4'", "id = 2")
-        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 2, price = 1.0, name = 'test_data2', description = 'test_data_desc2'", "id = 3")
-        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 3, price = 1.0, name = 'test_data3', description = 'test_data_desc3'", "id = 4")
-        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 5, price = 1.0, name = 'test_data5', description = 'test_data_desc5'", "id = 5")
+        self.dataBase.create_table(self.connection, self.cursor, "sales", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, sale_time TEXT, count INTEGER")
         
-        response = self.app.get("/recommended_products/3")
+        self.dataBase.create_table(self.connection, self.cursor, "recommended_products", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, sales_last_day INTEGER")
+        self.dataBase.clear_table(self.connection, self.cursor, "sales")
+        self.dataBase.clear_table(self.connection, self.cursor, "recommended_products")
         
-        print(response.data)
-        print(response.status_code)
-        print(response.headers)
+        #generate test data
+        self.dataBase.insert_data(self.connection, self.cursor, "products", "name, price, description, count, sales", ("test_product_1", 100, "test_description_1", 10, 0,))
+        self.dataBase.insert_data(self.connection, self.cursor, "products", "name, price, description, count, sales", ("test_product_2", 200, "test_description_2", 20, 0,))
+        self.dataBase.insert_data(self.connection, self.cursor, "products", "name, price, description, count, sales", ("test_product_3", 300, "test_description_3", 30, 0,))
+        self.dataBase.insert_data(self.connection, self.cursor, "products", "name, price, description, count, sales", ("test_product_4", 400, "test_description_4", 40, 0,))
+        self.dataBase.insert_data(self.connection, self.cursor, "products", "name, price, description, count, sales", ("test_product_5", 500, "test_description_5", 50, 0,))
+        
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, "2024-01-15 00:10:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, "2024-01-15 00:30:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, "2024-01-15 00:50:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, "2024-01-15 00:00:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, "2024-01-15 00:20:00", 1,))
+        
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, "2024-01-15 00:30:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, "2024-01-15 00:50:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, "2024-01-15 00:40:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (3, "2024-01-15 00:00:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (3, "2024-01-15 00:20:00", 1,))
+        
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (3, "2024-01-15 00:10:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (4, "2024-01-15 00:40:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (4, "2024-01-15 00:30:00", 1,))
+        
+        response = self.app.get("/get_recommended_products/5")
+        try:
+            self.assertEqual(response.data, b'{"recommended_products":[{"count":10,"description":"Test","id":5,"name":"Test","price":10.0}]}\n')
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
         self.assertEqual(response.status_code, 200)
+        
+        response = self.app.get("/get_recommended_products/3")
+        try:
+            print(response.data)
+            self.assertEqual(response.data, b'{"recommended_products":[{"product":{"count":50,"description":"test_description_5","id":5,"name":"test_product_5","price":500.0}},{"product":{"count":40,"description":"test_description_4","id":4,"name":"test_product_4","price":400.0}},{"product":{"count":30,"description":"test_description_3","id":3,"name":"test_product_3","price":300.0}}]}\n')
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        self.assertEqual(response.status_code, 200)
+        
+        response = self.app.get("/get_recommended_products/-1")
+        try:
+            self.assertEqual(response.data, b'{"recommended_products":[]}\n')
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        self.assertEqual(response.status_code, 200)
+        
+        response = self.app.get("/get_all_recommended_products")
+        try:
+            self.assertEqual(response.data, b'{"recommended_products":[{"product":{"count":50,"description":"test_description_5","id":5,"name":"test_product_5","price":500.0}},{"product":{"count":40,"description":"test_description_4","id":4,"name":"test_product_4","price":400.0}},{"product":{"count":30,"description":"test_description_3","id":3,"name":"test_product_3","price":300.0}},{"product":{"count":20,"description":"test_description_2","id":2,"name":"test_product_2","price":200.0}},{"product":{"count":10,"description":"test_description_1","id":1,"name":"test_product_1","price":100.0}}]}\n')
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        self.assertEqual(response.status_code, 200)
+        
+        response = self.app.get("/get_recommended_products/invalid_value")
+        try:
+            self.assertEqual(response.data, b"Invalid value")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        self.assertEqual(response.status_code, 404)
+        
+        
         
     def test_get_all_products(self):
         database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data", 1.0, "test_data_desc", 1))

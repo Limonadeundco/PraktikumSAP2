@@ -10,7 +10,7 @@ class TestRecommendedProductFunctions(unittest.TestCase):
     @classmethod
     def setUpClass(self):
         self.recommended_product_functions = recommended_product_functions()
-        self.connection = sqlite3.connect("TestRecommendedProductFunctions.db")
+        self.connection = sqlite3.connect("database.db")
         self.cursor = self.connection.cursor()
         self.dataBase = database_commands.DataBase()
         

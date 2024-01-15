@@ -17,8 +17,7 @@ class Server():
         
         dataBase.create_table(connection, cursor, "sales", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, date TEXT, count INTEGER")
         
-        dataBase.create_table(connection, cursor, "recommended_products", "id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, description TEXT, count INTEGER")
-        dataBase.insert_data(connection, cursor, "recommended_products", "name, price, description, count", ("Test", 10.0, "Test", 10))
+        dataBase.create_table(connection, cursor, "recommended_products", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, sales_last_day INTEGER")
         
     ################################################################
     #                                                              #    
@@ -213,7 +212,7 @@ class Server():
         
         recommended_products = []
         for product in database_response:
-            recommended_products.append({"id": product[0], "name": product[1], "price": product[2], "description": product[3], "count": product[4]})
+            recommended_products.append({"id": product[0], "product_id": product[1], "sales_last_day": product[2]})
         
         return flask.jsonify(recommended_products=recommended_products)
 
