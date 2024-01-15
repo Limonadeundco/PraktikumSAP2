@@ -25,6 +25,7 @@ class DataBase():
         connection.commit()
         
     def select_data(self, cursor, table, columns, condition):
+        print("SELECT " + columns + " FROM " + table + " WHERE " + condition)
         cursor.execute("SELECT " + columns + " FROM " + table + " WHERE " + condition)
         return cursor.fetchall()
     
