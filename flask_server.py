@@ -5,11 +5,15 @@ dataBase = DataBase()
 app = flask.Flask(__name__)
 
 class Server():
-    @app.route("/insert_data/<table>/<columns>/<data>", methods=["POST"])   
-    def insert_data(table, columns, data):
-        dataBase.insert_data(dataBase.connect_database("database.db"), table, columns, (data,))
-        return "Data inserted"
+    def __init__(self):
+        dataBase.create_table(dataBase.connect_database("database.db"), "products", "id INTEGER PRIMARY KEY, name TEXT, price REAL, description TEXT, count INTEGER")
+        
+    @app.route("/get_product/<product_id>/<column>", methods=["GET"])
+    def get_data(self, id, column):
+        if column not in ["name", "price", "description", "count"]:
+            return flask.Response("Column not found", status=404)
+        
+        return str(dataBase.select_data(dataBase.connect_database("database.db"), "products", column, f"id = {id}"))
     
-    @app.route("/get_data/<table>/<columns>/<condition>", methods=["GET"])
-    def get_data(table, columns, condition):
-        return str(dataBase.select_data(dataBase.connect_database("database.db"), table, columns, condition))
+if __name__ == "__main__":
+    app.run(debug=True)
