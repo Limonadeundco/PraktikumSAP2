@@ -298,11 +298,9 @@ class Server():
     
     @app.route("/get_image/utility/<name>", methods=["GET"])
     def get_image_utility(name):
-        name.strip(".jpg", ".png", ".jpeg", ".gif")
-        
         try:
             image_path = f"images/utility/{name}"
-            cv2_image = cv2.imread(image_path)
+            cv2_image = cv2.imread(image_path + ".png")
 
             # Convert the image to bytes
             _, buffer = cv2.imencode('.jpg', cv2_image)
@@ -312,7 +310,7 @@ class Server():
             base64_image = base64.b64encode(image_bytes).decode()
 
             # Create a data URL
-            data_url = f"data:image/jpeg;base64,{base64_image}"
+            data_url = f'<img src="data:image/jpeg;base64,{base64_image}">'
 
             return flask.Response(data_url, status=200, mimetype='text/html')
         
