@@ -301,23 +301,16 @@ class Server():
     @app.route("/get_image/utility/<name>", methods=["GET"])
     def get_image_utility(name):
         try:
-            image_path = f"images/utility/{name}"
-            cv2_image = cv2.imread(image_path + ".png")
-
-            # Convert the image to bytes
-            _, buffer = cv2.imencode('.jpg', cv2_image)
-            image_bytes = buffer.tobytes()
-
-            # Convert bytes to base64
-            base64_image = base64.b64encode(image_bytes).decode()
-
-            # Create a data URL
-            data_url = f'<img src="data:image/jpeg;base64,{base64_image}">'
-
-            return flask.Response(data_url, status=200, mimetype='text/html')
+            image_path = f'images/utility/{name}'
+            return flask.send_file(image_path, mimetype='image/png')
         
         except:
             return flask.Response("Image not found on disk", status=404)
+        
+        
+    @app.route("/webstore", methods=["GET"])
+    def webstore():
+        return flask.render_template("main_page.html")
 
 
 ################################################################
@@ -327,4 +320,4 @@ class Server():
 ################################################################    
 if __name__ == "__main__":
     Server = Server()
-    app.run(debug=True)
+    app.run(debug=True, port=5500)
