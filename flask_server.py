@@ -277,33 +277,19 @@ class Server():
             return flask.Response("Image not found", status=404)
         
         try:
-            image_path = database_response[0][3]
-            
-            #print("Image path: ", image_path)
-            cv2_image = cv2.imread(image_path)
-
-            # Convert the image to bytes
-            _, buffer = cv2.imencode('.jpg', cv2_image)
-            image_bytes = buffer.tobytes()
-
-            # Convert bytes to base64
-            base64_image = base64.b64encode(image_bytes).decode()
-
-            # Create a data URL
-            data_url = f"data:image/jpeg;base64,{base64_image}"
         
+            image_path = database_response[0][3]
+            return flask.send_file(image_path, mimetype='image/png')
+            
         except:
             return flask.Response("Image not found on disk", status=404)
-
-        return flask.Response(data_url, status=200, mimetype='text/html')
         
-    
+
     @app.route("/get_image/utility/<name>", methods=["GET"])
     def get_image_utility(name):
         try:
             image_path = f'images/utility/{name}'
             return flask.send_file(image_path, mimetype='image/png')
-        
         except:
             return flask.Response("Image not found on disk", status=404)
         

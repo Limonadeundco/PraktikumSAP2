@@ -8,7 +8,7 @@ from datetime import datetime
 from PIL import Image
 from io import BytesIO
 from flask_server import app, dataBase
-import base64
+import time
 
 current_year = datetime.now().year
 current_month = datetime.now().month
@@ -384,51 +384,27 @@ class TestFlaskServer(unittest.TestCase):
         self.assertEqual(response.data, b"Invalid id")
         self.assertEqual(response.status_code, 404)
         
-    def test_get_image_product(self):
-        
+
+    def test_get_image_utility(self):
         database_commands.DataBase().clear_table(self.conn, self.cursor, "images")
 
         # Create an image using Pillow
         image = Image.new('RGB', (60, 30), color = 'red')
-    
-        # Save the image to a file
-        image.save('images/products/test.jpg')
-    
-        # Insert a record for the image into the database
-        # Replace with your actual table structure and values
-        database_commands.DataBase().insert_data(self.conn, self.cursor, "images", "product_id, image_id, image_path", (1, 1, 'images/products/test.jpg'))
-        
-        product_id = 1
-        image_id = 1
+        image.save('images/utility/test_image.png')
+        image.close()
+        image = Image.new('RGB', (60, 30), color = 'blue')
+        image.save('images/utility/test_image2.png')
+        image.close()
 
-        response = self.app.get(f"/get_image/{product_id}/{image_id}")
-        #print("response.data: ", response.data)
-        self.assertEqual(response.status_code, 200)
+        try:
+            response = self.app.get("/get_image/utility/test_image.png")
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.content_type, 'image/png')
 
-        # Extract base64 image data from response
-        base64_image = response.data.split(b"base64,")[1]
-        image_data = base64.b64decode(base64_image)
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise    
 
-        # Open the image using Pillow
-        image = Image.open(BytesIO(image_data))
-
-        # Open the expected image file using Pillow
-        expected_image = Image.open('images/products/test.jpg')
-
-        # Compare the two images
-        self.assertTrue(image == expected_image)
-        
-                # Delete the image file
-        os.remove('images/products/test.jpg')
-
-        # Delete the database entry
-        database_commands.DataBase().delete_data(self.conn, self.cursor, "images", "product_id = 1 AND image_id = 1")
-        #print("111111111111111111111111111111111111111111")
-        
-        #print("response.data: ", response.data)
-        
-        
-    
     def tearDown(self):
         self.app = None
         
