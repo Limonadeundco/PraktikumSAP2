@@ -404,8 +404,129 @@ class TestFlaskServer(unittest.TestCase):
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise    
+    #test the following function get_image_product in very detail, and invlid values too
+    
     def test_get_image_product(self):
+        database_commands.DataBase().clear_table(self.conn, self.cursor, "images")
+        database_commands.DataBase().clear_table(self.conn, self.cursor, "products")
         
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "products", "id, name, price, description, count", (1, "test_data", 1.0, "test_data_desc", 1))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "products", "id, name, price, description, count", (4, "test_data4", 1.0, "test_data_desc4", 4))
+        
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 1, price = 1.0, name = 'test_data', description = 'test_data_desc'", "id = 1")
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 4, price = 1.0, name = 'test_data4', description = 'test_data_desc4'", "id = 4")
+        
+        database_commands.DataBase().delete_data(self.conn, self.cursor, "products", "id = 999")
+        
+        #create paths if they don't exist, where the images will be saved
+        
+        if not os.path.exists("images/products/1"):
+            os.makedirs("images/products/1")
+            
+        if not os.path.exists("images/products/4"):
+            os.makedirs("images/products/4")
+            
+        if not os.path.exists("images/products/999"):
+            os.makedirs("images/products/999")
+            
+
+        # Create an image using Pillow
+        image = Image.new('RGB', (60, 30), color = 'red')
+        image.save('images/products/1/1.png')
+        image.close()
+        image = Image.new('RGB', (60, 30), color = 'blue')
+        image.save('images/products/1/2.png')
+        image.close()
+        image = Image.new('RGB', (60, 30), color = 'red')
+        image.save('images/products/4/1.png')
+        image.close()
+        image = Image.new('RGB', (60, 30), color = 'blue')
+        image.save('images/products/4/2.png')
+        image.close()
+        
+        #save the image paths in the database dont use cls
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "images", "product_id, image_id, image_path", (1, 1, "images/products/1/1.png"))
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "images", "product_id, image_id, image_path", (1, 2, "images/products/1/2.png"))
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "images", "product_id, image_id, image_path", (4, 1, "images/products/4/1.png"))
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "images", "product_id, image_id, image_path", (4, 2, "images/products/4/2.png"))
+        
+        
+        response = self.app.get("/get_image/1/1")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.content_type, 'image/png')
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        response = self.app.get("/get_image/1/2")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.content_type, 'image/png')
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        response = self.app.get("/get_image/4/1")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.content_type, 'image/png')
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        response = self.app.get("/get_image/4/2")
+        #print(response.data)
+
+        try:
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.content_type, 'image/png')
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        response = self.app.get("/get_image/999/1")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.data, b"Image not found")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        response = self.app.get("/get_image/999/2")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.data, b"Image not found")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        #test for right exeption if invalid values are passed
+        
+        response = self.app.get("/get_image/invalid_id/1")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.data, b"Invalid id")
+            
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        response = self.app.get("/get_image/1/invalid_id")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.data, b"Invalid image id")
+            
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+
 
     def tearDown(self):
         self.app = None
