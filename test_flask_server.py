@@ -404,6 +404,8 @@ class TestFlaskServer(unittest.TestCase):
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise    
+    def test_get_image_product(self):
+        
 
     def tearDown(self):
         self.app = None
