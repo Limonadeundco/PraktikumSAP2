@@ -1,10 +1,11 @@
 import unittest
 import flask_server
-import flask
+import os
 import database_commands.database_commands as database_commands
 import sqlite3
 import recommended_product_functions as recommended_product_functions
 from datetime import datetime
+from PIL import Image
 
 current_year = datetime.now().year
 current_month = datetime.now().month
@@ -374,7 +375,29 @@ class TestFlaskServer(unittest.TestCase):
         self.assertEqual(response.data, b"Invalid id")
         self.assertEqual(response.status_code, 404)
         
-    #def test_get_cart
+    def test_get_image(self):
+            # Create a new image with RGB mode, size 100x100, and black color
+            img = Image.new('RGB', (100, 100))
+
+            # Save the image to the static directory
+            img.save('images/test.jpg')
+
+        
+            # Test for an image that exists
+            response = self.app.get("/get_image/test")
+            self.assertEqual(response.status_code, 200)
+
+            # Test for an image that doesn't exist
+            response = self.app.get("/get_image/non_existent_image")
+            self.assertEqual(response.status_code, 404)
+
+            # Test for an image that is not allowed to be accessed
+            response = self.app.get("/get_image/private_image")
+            self.assertEqual(response.status_code, 403)
+            
+            os.remove('images/test.jpg')
+        
+        
         
     
     def tearDown(self):

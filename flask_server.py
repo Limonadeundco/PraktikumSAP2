@@ -1,6 +1,8 @@
 import flask
 import sys
 import database_commands.database_commands as database_commands
+import cv2
+import base64
 
 dataBase = database_commands.DataBase()
 app = flask.Flask(__name__)
@@ -19,6 +21,9 @@ class Server():
         dataBase.create_table(connection, cursor, "sales", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, date TEXT, count INTEGER")
         
         dataBase.create_table(connection, cursor, "recommended_products", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, sales_last_day INTEGER")
+        
+        dataBase.create_table(connection, cursor, "images", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, image_id INTEGER, image_path TEXT")
+        dataBase.insert_data(connection, cursor, "images", "product_id, image_id, image_path", (1, 1, "images/1/1.jpg"))
         
     ################################################################
     #                                                              #    
@@ -231,6 +236,54 @@ class Server():
             recommended_products.append({"id": product[0], "name": product[1], "price": product[2], "description": product[3], "count": product[4]})
         
         return flask.jsonify(recommended_products=recommended_products)
+    
+    
+    
+    ################################################################
+    #                                                              #
+    #                         Images                               #
+    #                                                              #
+    ################################################################  
+    @app.route("/get_image/<product_id>", methods=["GET"])
+    @app.route("/get_image/<product_id>/<image_id>", methods=["GET"])
+    def get_image_product(product_id, image_id=None):
+        try:
+            product_id = int(product_id)
+        except ValueError:
+            return flask.Response("Invalid id", status=404)
+        
+        try:
+            image_id = int(image_id)
+        except ValueError:
+            return flask.Response("Invalid image id", status=404)
+        except TypeError:
+            image_id = 1
+        
+        _, cursor = dataBase.connect_database("database.db")
+        
+        database_response = dataBase.select_data(cursor, "images", "*", f"product_id = {product_id} AND id = {image_id}")
+        
+        if database_response == []:
+            return flask.Response("Image not found", status=404)
+        
+        image_path = database_response[0][3]
+        
+        cv2_image = cv2.imread(image_path)
+
+        # Convert the image to bytes
+        _, buffer = cv2.imencode('.jpg', cv2_image)
+        image_bytes = buffer.tobytes()
+
+        # Convert bytes to base64
+        base64_image = base64.b64encode(image_bytes).decode()
+
+        # Create a data URL
+        data_url = f"data:image/jpeg;base64,{base64_image}"
+
+        return flask.Response(data_url, status=200, mimetype='text/html')
+        
+    
+    #@app.route("/get_image/utility/<name>", methods=["GET"])
 
 
 ################################################################
