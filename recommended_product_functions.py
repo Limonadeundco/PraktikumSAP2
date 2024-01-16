@@ -1,5 +1,5 @@
 import datetime
-import database_commands
+import database_commands.database_commands as database_commands
 
 class recommended_product_functions():
     def __init__(self):

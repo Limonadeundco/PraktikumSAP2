@@ -1,5 +1,5 @@
 import unittest
-import database_commands.database_commands as database_commands
+import database_commands
 import sqlite3
 
 

@@ -1,7 +1,8 @@
 import flask
-from database_commands.database_commands import *
+import sys
+import database_commands.database_commands as database_commands
 
-dataBase = DataBase()
+dataBase = database_commands.DataBase()
 app = flask.Flask(__name__)
 
 

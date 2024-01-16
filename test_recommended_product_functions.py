@@ -2,7 +2,7 @@ import unittest
 from recommended_product_functions import *
 import os
 import sqlite3
-import database_commands
+import database_commands.database_commands as database_commands
 
 
 class TestRecommendedProductFunctions(unittest.TestCase):
