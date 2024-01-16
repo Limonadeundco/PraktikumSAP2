@@ -29,11 +29,11 @@ class Server():
         dataBase.clear_table(connection, cursor, "recommended_products")
         dataBase.clear_table(connection, cursor, "images")
         
-        #dataBase.insert_data(connection, cursor, "products", "id, name, price, description, count, sales", (1, "Brot", 2.99, "Einfach leckeres Brot", 8, 0))
-        #dataBase.insert_data(connection, cursor, "products", "id, name, price, description, count, sales", (2, "Wasser", 0.99, "Einfach leckeres Wasser", 15, 0))
+        dataBase.insert_data(connection, cursor, "products", "id, name, price, description, count, sales", (1, "Brot", 2.99, "Einfach leckeres Brot", 8, 0))
+        dataBase.insert_data(connection, cursor, "products", "id, name, price, description, count, sales", (2, "Wasser", 0.99, "Einfach leckeres Wasser", 15, 0))
         
-        #dataBase.insert_data(connection, cursor, "images", "id, product_id, image_id, image_path", (1, 1, 1, "images/products/1/1.png"))
-        #dataBase.insert_data(connection, cursor, "images", "id, product_id, image_id, image_path", (2, 2, 1, "images/products/2/1.png"))
+        dataBase.insert_data(connection, cursor, "images", "id, product_id, image_id, image_path", (1, 1, 1, "images/products/1/1.png"))
+        dataBase.insert_data(connection, cursor, "images", "id, product_id, image_id, image_path", (2, 2, 1, "images/products/2/1.png"))
         
     ################################################################
     #                                                              #    
@@ -301,7 +301,7 @@ class Server():
             return flask.Response("Image not found on disk", status=404)
         
         
-    @app.route("/webstore", methods=["GET"])
+    @app.route("/", methods=["GET"])
     def webstore():
         return flask.render_template("main_page.html")
 
@@ -313,4 +313,4 @@ class Server():
 ################################################################    
 if __name__ == "__main__":
     Server = Server()
-    app.run(debug=True, port=5500)
+    app.run(debug=True, port=5000)

@@ -8,7 +8,10 @@ def replace_url(old_url, new_url, reverse=False):
     print(folder_path)
     for root, dirs, files in os.walk(folder_path):
         for file in files:
-            if file.endswith(('html', 'js', 'css')):
+            if file.endswith(('html', 'js', 'css', 'py')):
+                #check if file is not switch_urls.py
+                if file == 'switch_urls.py':
+                    continue
                 file_path = os.path.join(root, file)
                 print("file: ", file)
                 with open(file_path, 'r') as f:
@@ -20,5 +23,6 @@ def replace_url(old_url, new_url, reverse=False):
                     f.write(new_content)
 
 # Usage example
-replace_url('http://127.0.0.1:5500', 'https://silver-goldfish-7xg65j5rx5xhww4g-5500.app.github.dev', False)
+#replace_url('http://127.0.0.1:5500', 'https://silver-goldfish-7xg65j5rx5xhww4g-5500.app.github.dev', False)
 #replace_url('https://silver-goldfish-7xg65j5rx5xhww4g-5500.app.github.dev', 'http://127.0.0.1:5500', True)
+#replace_url('http://127.0.0.1:5500', 'http://127.0.0.1:5000', False)

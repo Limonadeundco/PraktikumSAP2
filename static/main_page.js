@@ -9,13 +9,13 @@ window.addEventListener('load', function() {
         console.log(product_name);
         console.log(product_description);
 
-        httpGetJson('http://127.0.0.1:5500/get_product/' + (i + 1) + '/name')
+        httpGetJson('http://127.0.0.1:5000/get_product/' + (i + 1) + '/name')
             .then(response => {
                 product_name.textContent = response[0][0]; // Access the first element of the first array
                 console.log(response);
             });
 
-        httpGetJson('http://127.0.0.1:5500/get_product/' + (i + 1) + '/description')
+        httpGetJson('http://127.0.0.1:5000/get_product/' + (i + 1) + '/description')
             .then(response => {
                 product_description.textContent = response[0][0]; // Access the first element of the first array
                 console.log(response);
