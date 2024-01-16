@@ -35,6 +35,7 @@ class DataBase():
             cursor.execute("SELECT " + columns + " FROM " + table)
             
         else:
+            #print("SELECT " + columns + " FROM " + table + " WHERE " + condition)
             cursor.execute("SELECT " + columns + " FROM " + table + " WHERE " + condition)
         
         return cursor.fetchall()
