@@ -176,7 +176,7 @@ class TestFlaskServer(unittest.TestCase):
         self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (4, f"{current_year}-{current_month}-16 00:30:00", 1,))
         
         response = self.app.get("/get_recommended_products/5")
-        print("response.data: ", response.data)
+        #print("response.data: ", response.data)
         try:
             self.assertEqual(response.data, b'{"recommended_products":[{"id":1,"product_id":2,"sales_last_day":6},{"id":2,"product_id":3,"sales_last_day":3},{"id":3,"product_id":1,"sales_last_day":2},{"id":4,"product_id":4,"sales_last_day":2},{"id":5,"product_id":5,"sales_last_day":0}]}\n')
         except AssertionError:
@@ -186,7 +186,7 @@ class TestFlaskServer(unittest.TestCase):
         
         response = self.app.get("/get_recommended_products/3")
         try:
-            print(response.data)
+            #print(response.data)
             self.assertEqual(response.data, b'{"recommended_products":[{"id":6,"product_id":2,"sales_last_day":6},{"id":7,"product_id":3,"sales_last_day":3},{"id":8,"product_id":1,"sales_last_day":2}]}\n')
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
@@ -314,7 +314,7 @@ class TestFlaskServer(unittest.TestCase):
         #check if data was updated in the database
         self.cursor.execute("SELECT count FROM products WHERE id = 1")
         row = self.cursor.fetchone()
-        print(response.data)
+        #print(response.data)
         self.assertEqual(row[0], 2)
         self.assertEqual(response.data, b"Product updated")
         self.assertEqual(response.status_code, 200)
@@ -386,26 +386,23 @@ class TestFlaskServer(unittest.TestCase):
         
     def test_get_image_product(self):
         
-        self.app = app.test_client()
+        database_commands.DataBase().clear_table(self.conn, self.cursor, "images")
 
         # Create an image using Pillow
         image = Image.new('RGB', (60, 30), color = 'red')
-        
+    
         # Save the image to a file
-        image.save('test.jpg')
-
-        # Connect to the database
-        self.connection, self.cursor = dataBase.connect_database("database.db")
-
+        image.save('images/products/test.jpg')
+    
         # Insert a record for the image into the database
         # Replace with your actual table structure and values
-        self.cursor.execute("INSERT INTO images (product_id, id, image_path) VALUES (?, ?, ?)", (1, 1, 'test.jpg'))
-        self.connection.commit()
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "images", "product_id, image_id, image_path", (1, 1, 'images/products/test.jpg'))
         
         product_id = 1
         image_id = 1
 
         response = self.app.get(f"/get_image/{product_id}/{image_id}")
+        #print("response.data: ", response.data)
         self.assertEqual(response.status_code, 200)
 
         # Extract base64 image data from response
@@ -416,18 +413,19 @@ class TestFlaskServer(unittest.TestCase):
         image = Image.open(BytesIO(image_data))
 
         # Open the expected image file using Pillow
-        expected_image = Image.open('test.jpg')
+        expected_image = Image.open('images/products/test.jpg')
 
         # Compare the two images
         self.assertTrue(image == expected_image)
         
                 # Delete the image file
-        os.remove('test.jpg')
+        os.remove('images/products/test.jpg')
 
         # Delete the database entry
-        self.cursor.execute("DELETE FROM images WHERE product_id = ? AND id = ?", (1, 1))
-        self.connection.commit()
+        database_commands.DataBase().delete_data(self.conn, self.cursor, "images", "product_id = 1 AND image_id = 1")
+        #print("111111111111111111111111111111111111111111")
         
+        #print("response.data: ", response.data)
         
         
     

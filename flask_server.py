@@ -270,7 +270,8 @@ class Server():
         
         _, cursor = dataBase.connect_database("database.db")
         
-        database_response = dataBase.select_data(cursor, "images", "*", f"product_id = {product_id} AND id = {image_id}")
+        #print("product_id: ", product_id, "image_id: ", image_id)
+        database_response = dataBase.select_data(cursor, "images", "*", f"product_id = {product_id} AND image_id = {image_id}")
         
         if database_response == []:
             return flask.Response("Image not found", status=404)
@@ -278,6 +279,7 @@ class Server():
         try:
             image_path = database_response[0][3]
             
+            #print("Image path: ", image_path)
             cv2_image = cv2.imread(image_path)
 
             # Convert the image to bytes
