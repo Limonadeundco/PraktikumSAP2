@@ -18,15 +18,22 @@ int_colums = ["price", "count"]
 class Server():
     def __init__(self):
         connection, cursor = dataBase.connect_database("database.db")
+        
         dataBase.create_table(connection, cursor, "products", "id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, description TEXT, count INTEGER, sales INTEGER")
-        dataBase.insert_data(connection, cursor, "products", "name, price, description, count", ("Test", 10.0, "Test", 10))
-        
         dataBase.create_table(connection, cursor, "sales", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, date TEXT, count INTEGER")
-        
         dataBase.create_table(connection, cursor, "recommended_products", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, sales_last_day INTEGER")
-        
         dataBase.create_table(connection, cursor, "images", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, image_id INTEGER, image_path TEXT")
-        dataBase.insert_data(connection, cursor, "images", "product_id, image_id, image_path", (1, 1, "images/1/1.jpg"))
+        
+        dataBase.clear_table(connection, cursor, "products")
+        dataBase.clear_table(connection, cursor, "sales")
+        dataBase.clear_table(connection, cursor, "recommended_products")
+        dataBase.clear_table(connection, cursor, "images")
+        
+        dataBase.insert_data(connection, cursor, "products", "id, name, price, description, count, sales", (1, "Brot", 2.99, "Einfach leckeres Brot", 8, 0))
+        dataBase.insert_data(connection, cursor, "products", "id, name, price, description, count, sales", (2, "Wasser", 0.99, "Einfach leckeres Wasser", 15, 0))
+        
+        dataBase.insert_data(connection, cursor, "images", "id, product_id, image_id, image_path", (1, 1, 1, "images/products/1/1.png"))
+        dataBase.insert_data(connection, cursor, "images", "id, product_id, image_id, image_path", (2, 2, 1, "images/products/2/1.png"))
         
     ################################################################
     #                                                              #    
