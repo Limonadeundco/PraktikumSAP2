@@ -24,8 +24,7 @@ nav img {
     height: 5vh;
     width: 5vh;
     margin-left: 2vw;
-    margin-top: 1.5vh;
-    float: left;
+    margin-top: 3vh;
     align-self: center;
     background-color: aqua;
 }
@@ -33,11 +32,10 @@ nav img {
 nav ul {
     background-color: #000000;
     list-style-type: none; 
-    margin-top: 1.5vh;
-    margin-bottom: 1.5vh;
+    padding-top: 3vh;
+    padding-bottom: 3vh;
     margin-left: 8vw;
     margin-right: 8vw;
-    padding: 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
