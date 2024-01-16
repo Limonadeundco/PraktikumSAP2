@@ -14,6 +14,10 @@ class TestRecommendedProductFunctions(unittest.TestCase):
         self.cursor = self.connection.cursor()
         self.dataBase = database_commands.DataBase()
         
+        self.dataBase.drop_table(self.connection, self.cursor, "products")
+        self.dataBase.drop_table(self.connection, self.cursor, "sales")
+        self.dataBase.drop_table(self.connection, self.cursor, "recommended_products")
+        
         self.dataBase.create_table(self.connection, self.cursor, "products", "id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, description TEXT, count INTEGER, sales INTEGER")
         
         self.dataBase.create_table(self.connection, self.cursor, "sales", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, sale_time TEXT, count INTEGER")
@@ -23,7 +27,7 @@ class TestRecommendedProductFunctions(unittest.TestCase):
     @classmethod
     def tearDownClass(self):
         self.connection.close()
-        os.remove("TestRecommendedProductFunctions.db")
+        os.remove("database.db")
         
     
     def setUp(self):
@@ -33,11 +37,11 @@ class TestRecommendedProductFunctions(unittest.TestCase):
         self.dataBase.clear_table(self.connection, self.cursor, "recommended_products")
         
         #generate test data
-        self.dataBase.insert_data(self.connection, self.cursor, "products", "name, price, description, count, sales", ("test_product_1", 100, "test_description_1", 10, 0,))
-        self.dataBase.insert_data(self.connection, self.cursor, "products", "name, price, description, count, sales", ("test_product_2", 200, "test_description_2", 20, 0,))
-        self.dataBase.insert_data(self.connection, self.cursor, "products", "name, price, description, count, sales", ("test_product_3", 300, "test_description_3", 30, 0,))
-        self.dataBase.insert_data(self.connection, self.cursor, "products", "name, price, description, count, sales", ("test_product_4", 400, "test_description_4", 40, 0,))
-        self.dataBase.insert_data(self.connection, self.cursor, "products", "name, price, description, count, sales", ("test_product_5", 500, "test_description_5", 50, 0,))
+        self.dataBase.insert_data(self.connection, self.cursor, "products", "name, price, description, count, sales", ("product1", 1.0, "description1", 1, 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "products", "name, price, description, count, sales", ("product2", 1.0, "description2", 1, 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "products", "name, price, description, count, sales", ("product3", 1.0, "description3", 1, 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "products", "name, price, description, count, sales", ("product4", 1.0, "description4", 1, 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "products", "name, price, description, count, sales", ("product5", 1.0, "description5", 1, 1,))
         
         self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, "2024-01-15 00:10:00", 1,))
         self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, "2024-01-15 00:30:00", 1,))
@@ -86,7 +90,17 @@ class TestRecommendedProductFunctions(unittest.TestCase):
         self.assertEqual(dataBase_response[2][0], 3)
         self.assertEqual(dataBase_response[3][0], 4)
         
-        #print(dataBase_response)
+        # check if the generate_recommended_products throws an error if the product_count is bigger than the number of products
+        with self.assertRaises(IndexError):
+            self.recommended_product_functions.generate_recommended_products(self.connection, self.cursor, 6)
+            
+        # check if the generate_recommended_products throws an error if the product_count is smaller than 1
+        with self.assertRaises(IndexError):
+            self.recommended_product_functions.generate_recommended_products(self.connection, self.cursor, 0)
+            
+        # check if the generate_recommended_products throws an error if the product_count is not an integer
+        with self.assertRaises(TypeError):
+            self.recommended_product_functions.generate_recommended_products(self.connection, self.cursor, "test")
         
 
         

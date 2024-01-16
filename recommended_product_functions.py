@@ -13,14 +13,15 @@ class recommended_product_functions():
         for product_id in dataBase_response:
             sales_last_day = self.get_sales_last_day(connection, cursor, product_id[0])
             #print("sales_last_day: ", sales_last_day)
-            products_sales.append([product_id, sales_last_day])
+            products_sales.append([product_id[0], sales_last_day])
             
         products_sales.sort(key=lambda x: x[1], reverse=True)
         
         for i in range(product_count):
-            product_id = products_sales[i][0][0]
+            print("products_sales[i]: ", products_sales[i])
+            product_id = products_sales[i][0]
             product_sales = products_sales[i][1]
-            #print("product_id: ", product_id, "product_sales: ", product_sales)
+            print("product_id: ", product_id, "product_sales: ", product_sales)
             self.dataBase.insert_data(connection, cursor, "recommended_products", "product_id, sales_last_day", (product_id, product_sales,))
             
         
