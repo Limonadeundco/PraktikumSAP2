@@ -1,9 +1,10 @@
 import unittest
-import flask_server
+import flask_server.flask_server as flask_server
 import flask
-import database_commands
+import database_commands.database_commands as database_commands
 import sqlite3
-import recommended_product_functions
+import utility_functions.Recommended_product_functions as recommended_product_functions
+import database_commands.database_commands as database_commands
 
 class TestFlaskServer(unittest.TestCase):
     
