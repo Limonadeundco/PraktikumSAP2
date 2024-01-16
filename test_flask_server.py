@@ -4,6 +4,10 @@ import flask
 import database_commands.database_commands as database_commands
 import sqlite3
 import recommended_product_functions as recommended_product_functions
+from datetime import datetime
+
+current_year = datetime.now().year
+current_month = datetime.now().month
 
 class TestFlaskServer(unittest.TestCase):
     
@@ -131,8 +135,12 @@ class TestFlaskServer(unittest.TestCase):
         self.dataBase.create_table(self.connection, self.cursor, "sales", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, sale_time TEXT, count INTEGER")
         
         self.dataBase.create_table(self.connection, self.cursor, "recommended_products", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, sales_last_day INTEGER")
+        
+        self.dataBase.create_table(self.connection, self.cursor, "products", "id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, description TEXT, count INTEGER, sales INTEGER")
+        
         self.dataBase.clear_table(self.connection, self.cursor, "sales")
         self.dataBase.clear_table(self.connection, self.cursor, "recommended_products")
+        self.dataBase.clear_table(self.connection, self.cursor, "products")
         
         #generate test data
         self.dataBase.insert_data(self.connection, self.cursor, "products", "name, price, description, count, sales", ("test_product_1", 100, "test_description_1", 10, 0,))
@@ -141,25 +149,26 @@ class TestFlaskServer(unittest.TestCase):
         self.dataBase.insert_data(self.connection, self.cursor, "products", "name, price, description, count, sales", ("test_product_4", 400, "test_description_4", 40, 0,))
         self.dataBase.insert_data(self.connection, self.cursor, "products", "name, price, description, count, sales", ("test_product_5", 500, "test_description_5", 50, 0,))
         
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, "2024-01-15 00:10:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, "2024-01-15 00:30:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, "2024-01-15 00:50:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, "2024-01-15 00:00:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, "2024-01-15 00:20:00", 1,))
-        
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, "2024-01-15 00:30:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, "2024-01-15 00:50:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, "2024-01-15 00:40:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (3, "2024-01-15 00:00:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (3, "2024-01-15 00:20:00", 1,))
-        
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (3, "2024-01-15 00:10:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (4, "2024-01-15 00:40:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (4, "2024-01-15 00:30:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, f"{current_year}-{current_month}-15 00:10:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, f"{current_year}-{current_month}-15 00:30:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, f"{current_year}-{current_month}-15 00:50:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, f"{current_year}-{current_month}-15 00:00:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, f"{current_year}-{current_month}-15 00:20:00", 1,))
+
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, f"{current_year}-{current_month}-15 00:30:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, f"{current_year}-{current_month}-15 00:50:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, f"{current_year}-{current_month}-15 00:40:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (3, f"{current_year}-{current_month}-15 00:00:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (3, f"{current_year}-{current_month}-15 00:20:00", 1,))
+
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (3, f"{current_year}-{current_month}-15 00:10:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (4, f"{current_year}-{current_month}-15 00:40:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (4, f"{current_year}-{current_month}-15 00:30:00", 1,))
         
         response = self.app.get("/get_recommended_products/5")
+        print("response.data: ", response.data)
         try:
-            self.assertEqual(response.data, b'{"recommended_products":[{"count":10,"description":"Test","id":5,"name":"Test","price":10.0}]}\n')
+            self.assertEqual(response.data, b'{"recommended_products":[{"product":{"count":50,"description":"test_description_5","id":5,"name":"test_product_5","price":500.0}},{"product":{"count":40,"description":"test_description_4","id":4,"name":"test_product_4","price":400.0}},{"product":{"count":30,"description":"test_description_3","id":3,"name":"test_product_3","price":300.0}},{"product":{"count":20,"description":"test_description_2","id":2,"name":"test_product_2","price":200.0}},{"product":{"count":10,"description":"test_description_1","id":1,"name":"test_product_1","price":100.0}}]}\n')
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
