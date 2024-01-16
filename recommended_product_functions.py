@@ -6,11 +6,17 @@ class recommended_product_functions():
         self.dataBase = database_commands.DataBase()
     
     def generate_recommended_products(self, connection, cursor, product_count):
+        self.dataBase.clear_table(connection, cursor, "recommended_products")
+        
         cursor.execute("SELECT id FROM products")
         dataBase_response = cursor.fetchall()
         
-        if product_count == 0:
-            raise IndexError("The product_count must be bigger than 0")
+        if product_count <= 0:
+            raise IndexError("Product count must be bigger than 0")
+        
+        if product_count > len(dataBase_response):
+            raise IndexError("Product count must be smaller than the number of products in the database")
+        
         #if it is not an integer, raise TypeError
         if type(product_count) != int:
             raise TypeError("The product_count must be an integer")

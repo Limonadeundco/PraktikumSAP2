@@ -3,6 +3,9 @@ import sys
 import database_commands.database_commands as database_commands
 import cv2
 import base64
+import recommended_product_functions
+
+rpf = recommended_product_functions.recommended_product_functions()
 
 dataBase = database_commands.DataBase()
 app = flask.Flask(__name__)
@@ -202,16 +205,22 @@ class Server():
     #                    Recommended products                      #
     #                                                              #
     ################################################################
-    @app.route("/get_recommended_products/<recommended_id>", methods=["GET"])
-    def get_recommended_products(recommended_id):
+    @app.route("/get_recommended_products/<limit>", methods=["GET"])
+    @app.route("/get_recommended_products", defaults={'limit': 5}, methods=["GET"])
+    def get_recommended_products(limit=5):
         try:
-            recommended_id = int(recommended_id)
+            limit = int(limit)
         except ValueError:
             return flask.Response("Invalid id", status=404)
+
+        connection, cursor = dataBase.connect_database("database.db")
         
-        _, cursor = dataBase.connect_database("database.db")
+        try:
+            rpf.generate_recommended_products(connection, cursor, limit)
+        except IndexError as e:
+            return flask.Response(str(e), status=404)
         
-        database_response = dataBase.select_data(cursor, "recommended_products", "*", f"id = {recommended_id}")
+        database_response = dataBase.select_data(cursor, "recommended_products", "*")
         
         if database_response == []:
             return flask.Response("Product not found", status=404)

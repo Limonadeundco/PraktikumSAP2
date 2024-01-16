@@ -6,6 +6,9 @@ import sqlite3
 import recommended_product_functions as recommended_product_functions
 from datetime import datetime
 from PIL import Image
+from io import BytesIO
+from flask_server import app, dataBase
+import base64
 
 current_year = datetime.now().year
 current_month = datetime.now().month
@@ -18,6 +21,8 @@ class TestFlaskServer(unittest.TestCase):
         cls.conn, cls.cursor = database_commands.DataBase().connect_database("database.db")
         database_commands.DataBase().drop_table(cls.conn, cls.cursor, "products")
         database_commands.DataBase().create_table(cls.conn, cls.cursor, "products", "id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, description TEXT, count INTEGER, sales INTEGER")
+        database_commands.DataBase().drop_table(cls.conn, cls.cursor, "images")
+        database_commands.DataBase().create_table(cls.conn, cls.cursor, "images", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, image_id INTEGER, image_path TEXT")
         
     @classmethod
     def tearDownClass(cls):
@@ -129,9 +134,13 @@ class TestFlaskServer(unittest.TestCase):
         
     def test_recommended_products(self):
         self.recommended_product_functions = recommended_product_functions
-        self.connection = sqlite3.connect("TestRecommendedProductFunctions.db")
+        self.connection = sqlite3.connect("database.db")
         self.cursor = self.connection.cursor()
         self.dataBase = database_commands.DataBase()
+        
+        self.dataBase.drop_table(self.connection, self.cursor, "sales")
+        self.dataBase.drop_table(self.connection, self.cursor, "recommended_products")
+        self.dataBase.drop_table(self.connection, self.cursor, "products")
         
         self.dataBase.create_table(self.connection, self.cursor, "sales", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, sale_time TEXT, count INTEGER")
         
@@ -150,26 +159,26 @@ class TestFlaskServer(unittest.TestCase):
         self.dataBase.insert_data(self.connection, self.cursor, "products", "name, price, description, count, sales", ("test_product_4", 400, "test_description_4", 40, 0,))
         self.dataBase.insert_data(self.connection, self.cursor, "products", "name, price, description, count, sales", ("test_product_5", 500, "test_description_5", 50, 0,))
         
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, f"{current_year}-{current_month}-15 00:10:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, f"{current_year}-{current_month}-15 00:30:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, f"{current_year}-{current_month}-15 00:50:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, f"{current_year}-{current_month}-15 00:00:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, f"{current_year}-{current_month}-15 00:20:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, f"{current_year}-{current_month}-16 00:10:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, f"{current_year}-{current_month}-16 00:30:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, f"{current_year}-{current_month}-16 00:50:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, f"{current_year}-{current_month}-16 00:00:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, f"{current_year}-{current_month}-16 00:20:00", 1,))
 
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, f"{current_year}-{current_month}-15 00:30:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, f"{current_year}-{current_month}-15 00:50:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, f"{current_year}-{current_month}-15 00:40:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (3, f"{current_year}-{current_month}-15 00:00:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (3, f"{current_year}-{current_month}-15 00:20:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, f"{current_year}-{current_month}-16 00:30:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, f"{current_year}-{current_month}-16 00:50:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, f"{current_year}-{current_month}-16 00:40:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (3, f"{current_year}-{current_month}-16 00:00:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (3, f"{current_year}-{current_month}-16 00:20:00", 1,))
 
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (3, f"{current_year}-{current_month}-15 00:10:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (4, f"{current_year}-{current_month}-15 00:40:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (4, f"{current_year}-{current_month}-15 00:30:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (3, f"{current_year}-{current_month}-16 00:10:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (4, f"{current_year}-{current_month}-16 00:40:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (4, f"{current_year}-{current_month}-16 00:30:00", 1,))
         
         response = self.app.get("/get_recommended_products/5")
         print("response.data: ", response.data)
         try:
-            self.assertEqual(response.data, b'{"recommended_products":[{"product":{"count":50,"description":"test_description_5","id":5,"name":"test_product_5","price":500.0}},{"product":{"count":40,"description":"test_description_4","id":4,"name":"test_product_4","price":400.0}},{"product":{"count":30,"description":"test_description_3","id":3,"name":"test_product_3","price":300.0}},{"product":{"count":20,"description":"test_description_2","id":2,"name":"test_product_2","price":200.0}},{"product":{"count":10,"description":"test_description_1","id":1,"name":"test_product_1","price":100.0}}]}\n')
+            self.assertEqual(response.data, b'{"recommended_products":[{"id":1,"product_id":2,"sales_last_day":6},{"id":2,"product_id":3,"sales_last_day":3},{"id":3,"product_id":1,"sales_last_day":2},{"id":4,"product_id":4,"sales_last_day":2},{"id":5,"product_id":5,"sales_last_day":0}]}\n')
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
@@ -178,7 +187,7 @@ class TestFlaskServer(unittest.TestCase):
         response = self.app.get("/get_recommended_products/3")
         try:
             print(response.data)
-            self.assertEqual(response.data, b'{"recommended_products":[{"product":{"count":50,"description":"test_description_5","id":5,"name":"test_product_5","price":500.0}},{"product":{"count":40,"description":"test_description_4","id":4,"name":"test_product_4","price":400.0}},{"product":{"count":30,"description":"test_description_3","id":3,"name":"test_product_3","price":300.0}}]}\n')
+            self.assertEqual(response.data, b'{"recommended_products":[{"id":6,"product_id":2,"sales_last_day":6},{"id":7,"product_id":3,"sales_last_day":3},{"id":8,"product_id":1,"sales_last_day":2}]}\n')
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
@@ -186,27 +195,27 @@ class TestFlaskServer(unittest.TestCase):
         
         response = self.app.get("/get_recommended_products/-1")
         try:
-            self.assertEqual(response.data, b'{"recommended_products":[]}\n')
-        except AssertionError:
-            self.fail("Unexpected response data:" + str(response.data))
-            raise
-        self.assertEqual(response.status_code, 200)
-        
-        response = self.app.get("/get_all_recommended_products")
-        try:
-            self.assertEqual(response.data, b'{"recommended_products":[{"product":{"count":50,"description":"test_description_5","id":5,"name":"test_product_5","price":500.0}},{"product":{"count":40,"description":"test_description_4","id":4,"name":"test_product_4","price":400.0}},{"product":{"count":30,"description":"test_description_3","id":3,"name":"test_product_3","price":300.0}},{"product":{"count":20,"description":"test_description_2","id":2,"name":"test_product_2","price":200.0}},{"product":{"count":10,"description":"test_description_1","id":1,"name":"test_product_1","price":100.0}}]}\n')
-        except AssertionError:
-            self.fail("Unexpected response data:" + str(response.data))
-            raise
-        self.assertEqual(response.status_code, 200)
-        
-        response = self.app.get("/get_recommended_products/invalid_value")
-        try:
-            self.assertEqual(response.data, b"Invalid value")
+            self.assertEqual(response.data, b'Product count must be bigger than 0')
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
         self.assertEqual(response.status_code, 404)
+        
+        response = self.app.get("/get_recommended_products/invalid_value")
+        try:
+            self.assertEqual(response.data, b"Invalid id")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        self.assertEqual(response.status_code, 404)
+        
+        response = self.app.get("/get_recommended_products")
+        try:
+            self.assertEqual(response.data, b'{"recommended_products":[{"id":9,"product_id":2,"sales_last_day":6},{"id":10,"product_id":3,"sales_last_day":3},{"id":11,"product_id":1,"sales_last_day":2},{"id":12,"product_id":4,"sales_last_day":2},{"id":13,"product_id":5,"sales_last_day":0}]}\n')
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        self.assertEqual(response.status_code, 200)
         
         
         
@@ -375,27 +384,49 @@ class TestFlaskServer(unittest.TestCase):
         self.assertEqual(response.data, b"Invalid id")
         self.assertEqual(response.status_code, 404)
         
-    def test_get_image(self):
-            # Create a new image with RGB mode, size 100x100, and black color
-            img = Image.new('RGB', (100, 100))
-
-            # Save the image to the static directory
-            img.save('images/test.jpg')
-
+    def test_get_image_product(self):
         
-            # Test for an image that exists
-            response = self.app.get("/get_image/test")
-            self.assertEqual(response.status_code, 200)
+        self.app = app.test_client()
 
-            # Test for an image that doesn't exist
-            response = self.app.get("/get_image/non_existent_image")
-            self.assertEqual(response.status_code, 404)
+        # Create an image using Pillow
+        image = Image.new('RGB', (60, 30), color = 'red')
+        
+        # Save the image to a file
+        image.save('test.jpg')
 
-            # Test for an image that is not allowed to be accessed
-            response = self.app.get("/get_image/private_image")
-            self.assertEqual(response.status_code, 403)
-            
-            os.remove('images/test.jpg')
+        # Connect to the database
+        self.connection, self.cursor = dataBase.connect_database("database.db")
+
+        # Insert a record for the image into the database
+        # Replace with your actual table structure and values
+        self.cursor.execute("INSERT INTO images (product_id, id, image_path) VALUES (?, ?, ?)", (1, 1, 'test.jpg'))
+        self.connection.commit()
+        
+        product_id = 1
+        image_id = 1
+
+        response = self.app.get(f"/get_image/{product_id}/{image_id}")
+        self.assertEqual(response.status_code, 200)
+
+        # Extract base64 image data from response
+        base64_image = response.data.split(b"base64,")[1]
+        image_data = base64.b64decode(base64_image)
+
+        # Open the image using Pillow
+        image = Image.open(BytesIO(image_data))
+
+        # Open the expected image file using Pillow
+        expected_image = Image.open('test.jpg')
+
+        # Compare the two images
+        self.assertTrue(image == expected_image)
+        
+                # Delete the image file
+        os.remove('test.jpg')
+
+        # Delete the database entry
+        self.cursor.execute("DELETE FROM images WHERE product_id = ? AND id = ?", (1, 1))
+        self.connection.commit()
         
         
         

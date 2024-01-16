@@ -30,8 +30,13 @@ class DataBase():
         cursor.execute(query, data)
         connection.commit()
         
-    def select_data(self, cursor, table, columns, condition):
-        cursor.execute("SELECT " + columns + " FROM " + table + " WHERE " + condition)
+    def select_data(self, cursor, table, columns, condition=None):
+        if condition == None:
+            cursor.execute("SELECT " + columns + " FROM " + table)
+            
+        else:
+            cursor.execute("SELECT " + columns + " FROM " + table + " WHERE " + condition)
+        
         return cursor.fetchall()
     
     def update_data(self, connection, cursor, table, columns, condition):
