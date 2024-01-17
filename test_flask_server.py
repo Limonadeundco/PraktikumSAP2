@@ -564,6 +564,25 @@ class TestFlaskServer(unittest.TestCase):
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
+        
+        #invalid values
+        response = self.app.get("/get_basket_for_user/invalid_id")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.data, b"Invalid id")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        response = self.app.get("/get_basket_for_user/999")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.data, b"User not found")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
 
 
     def tearDown(self):
