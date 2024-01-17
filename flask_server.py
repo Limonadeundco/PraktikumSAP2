@@ -38,9 +38,6 @@ class Server():
         dataBase.insert_data(connection, cursor, "images", "id, product_id, image_id, image_path", (1, 1, 1, "images/products/1/1.png"))
         dataBase.insert_data(connection, cursor, "images", "id, product_id, image_id, image_path", (2, 2, 1, "images/products/2/1.png"))
         
-        dataBase.insert_data(connection, cursor, "baskets", "user_id, product_id, count", (1, 1, 2))
-        dataBase.insert_data(connection, cursor, "baskets", "user_id, product_id, count", (1, 2, 5))
-        
         
     ################################################################
     #                                                              #    
