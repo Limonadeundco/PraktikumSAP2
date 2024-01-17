@@ -1,28 +1,72 @@
-// Define a product
-function Product(name, price, quantity) {
-    this.name = name;
-    this.price = price;
-    this.quantity = quantity;
+async function httpGetJson(url) {
+    return fetch(url)
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .catch((e) => {
+            console.log(
+                "There was a problem with your fetch operation: " + e.message
+            );
+        });
 }
 
-// Define a basket
-function Basket() {
-    this.products = [];
-    this.total = 0;
+// Read the basket ID from the cookie
+function getBasketIdFromCookie() {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.startsWith("basketId=")) {
+            return cookie.substring("basketId=".length, cookie.length);
+        }
+    }
+    return null;
 }
 
-// Add a product to the basket
-Basket.prototype.addProduct = function (product) {
-    this.products.push(product);
-    this.total += product.price * product.quantity;
-};
+async function getInfosForProductID(product_id) {
+    let response = await httpGetJson(
+        "http://127.0.0.1:5000/get_product/" + product_id
+    );
+    let product_infos = response.product;
 
-// Create a new basket
-var basket = new Basket();
+    return product_infos;
+}
 
-// Add some products to the basket
-basket.addProduct(new Product("Product 1", 10, 2));
-basket.addProduct(new Product("Product 2", 20, 1));
+async function getProductsForBasketId(basket_id) {
+    let response = await httpGetJson(
+        "http://127.0.0.1:5000/get_basket_for_user/" + basket_id
+    );
+    let basket_products = response.basket;
 
-// Log the total price of the basket
-console.log(basket.total);
+    return basket_products;
+}
+
+window.addEventListener("load", async function () {
+    let basket_id = 1;
+    let basket_products = await getProductsForBasketId(basket_id);
+
+    console.log(basket_products);
+
+    let basket_table = document.getElementById("basket-table");
+    for (let i = 0; i < basket_products.length; i++) {
+        let product = basket_products[i].product;
+        console.log(product);
+
+        let product_infos = await getInfosForProductID(product.product_id);
+        product_infos = product_infos;
+
+        let row = basket_table.insertRow(-1);
+        let cell1 = row.insertCell(0);
+        let cell2 = row.insertCell(1);
+        let cell3 = row.insertCell(2);
+
+        cell1.innerHTML = product_infos.name;
+        cell2.innerHTML = product.count;
+        cell3.innerHTML = product_infos.price + "€";
+
+        console.log(product.product_id);
+        console.log(product.count);
+    }
+});
