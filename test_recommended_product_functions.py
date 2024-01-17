@@ -32,7 +32,6 @@ class TestRecommendedProductFunctions(unittest.TestCase):
     @classmethod
     def tearDownClass(self):
         self.connection.close()
-        os.remove("database.db")
         
     
     def setUp(self):
