@@ -126,7 +126,7 @@ class Server():
         
         database_response = dataBase.select_data(cursor, "products", "count(*)")
         
-        return flask.jsonify(database_response[0][0])
+        return flask.jsonify(database_response)
     
     
     ################################################################
@@ -522,7 +522,7 @@ class Server():
         
         products = []
         for product in database_response:
-            products.append({"id": product[0], "name": product[1], "price": product[2], "description": product[3], "count": product[4]})
+            products.append({"product": {"id": product[0], "name": product[1], "price": product[2], "description": product[3], "count": product[4]}})
         
         return flask.jsonify(products=products)
 
