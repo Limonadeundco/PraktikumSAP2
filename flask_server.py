@@ -1,5 +1,5 @@
 import flask
-import sys
+import uuid
 import database_commands.database_commands as database_commands
 import cv2
 import base64
@@ -22,12 +22,15 @@ class Server():
         dataBase.drop_table(connection, cursor, "sales")
         dataBase.drop_table(connection, cursor, "recommended_products")
         dataBase.drop_table(connection, cursor, "images")
+        dataBase.drop_table(connection, cursor, "cookies")
+        dataBase.drop_table(connection, cursor, "baskets")
         
         dataBase.create_table(connection, cursor, "products", "id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, description TEXT, count INTEGER, sales INTEGER")
         dataBase.create_table(connection, cursor, "sales", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, date TEXT, count INTEGER")
         dataBase.create_table(connection, cursor, "recommended_products", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, sales_last_day INTEGER")
         dataBase.create_table(connection, cursor, "images", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, image_id INTEGER, image_path TEXT")
         dataBase.create_table(connection, cursor, "baskets", "id INTEGER PRIMARY KEY AUTOINCREMENT, user_id, product_id INTEGER, count INTEGER")
+        dataBase.create_table(connection, cursor, "cookies", "id INTEGER PRIMARY KEY AUTOINCREMENT, cookie_id INTEGER")
         
         dataBase.insert_data(connection, cursor, "products", "id, name, price, description, count, sales", (1, "Brot", 2.99, "Einfach leckeres Brot", 8, 0))
         dataBase.insert_data(connection, cursor, "products", "id, name, price, description, count, sales", (2, "Wasser", 0.99, "Einfach leckeres Wasser", 15, 0))
@@ -326,7 +329,107 @@ class Server():
             basket.append({"id": product[0], "user_id": product[1], "product_id": product[2], "count": product[3]})
         
         return flask.jsonify(basket=basket)
-      
+    
+    @app.route("/add_product_to_basket/<user_id>/<product_id>/<count>", methods=["POST"])
+    def add_product_to_basket(user_id, product_id, count):
+        try:
+            user_id = int(user_id)
+        except ValueError:
+            return flask.Response("Invalid user id", status=404)
+        
+        try:
+            product_id = int(product_id)
+        except ValueError:
+            return flask.Response("Invalid product id", status=404)
+        
+        try:
+            count = int(count)
+        except ValueError:
+            return flask.Response("Invalid count", status=404)
+        
+        _, cursor = dataBase.connect_database("database.db")
+        
+        database_response = dataBase.select_data(cursor, "products", "*", f"id = {product_id}")
+        
+        if database_response == []:
+            return flask.Response("Product not found", status=404)
+        
+        database_response = dataBase.select_data(cursor, "baskets", "*", f"user_id = {user_id} AND product_id = {product_id}")
+        
+        if database_response == []:
+            dataBase.insert_data(cursor, "baskets", "user_id, product_id, count", (user_id, product_id, count))
+        else:
+            dataBase.update_data(cursor, "baskets", f"count = {count}", f"user_id = {user_id} AND product_id = {product_id}")
+        
+        return flask.Response("Product added to basket", status=200)
+    
+    @app.route("/remove_product_from_basket/<user_id>/<product_id>", methods=["DELETE"])
+    def remove_product_from_basket(user_id, product_id):
+        try:
+            user_id = int(user_id)
+        except ValueError:
+            return flask.Response("Invalid user id", status=404)
+        
+        try:
+            product_id = int(product_id)
+        except ValueError:
+            return flask.Response("Invalid product id", status=404)
+        
+        _, cursor = dataBase.connect_database("database.db")
+        
+        database_response = dataBase.select_data(cursor, "products", "*", f"id = {product_id}")
+        
+        if database_response == []:
+            return flask.Response("Product not found", status=404)
+        
+        database_response = dataBase.select_data(cursor, "baskets", "*", f"user_id = {user_id} AND product_id = {product_id}")
+        
+        if database_response == []:
+            return flask.Response("Product not found in basket", status=404)
+        
+        dataBase.delete_data(cursor, "baskets", f"user_id = {user_id} AND product_id = {product_id}")
+        
+        return flask.Response("Product removed from basket", status=200)
+    
+    @app.route("/clear_basket/<user_id>", methods=["DELETE"])
+    def clear_basket(user_id):
+        try:
+            user_id = int(user_id)
+        except ValueError:
+            return flask.Response("Invalid user id", status=404)
+        
+        _, cursor = dataBase.connect_database("database.db")
+        
+        database_response = dataBase.select_data(cursor, "baskets", "*", f"user_id = {user_id}")
+        
+        if database_response == []:
+            return flask.Response("Basket not found", status=404)
+        
+        dataBase.delete_data(cursor, "baskets", f"user_id = {user_id}")
+        
+        return flask.Response("Basket cleared", status=200)  
+    
+    ################################################################
+    #                                                              #
+    #                         Cookies                              #
+    #                                                              #
+    ################################################################
+    
+
+
+    @app.route("/get_cookie", methods=["GET"])
+    def get_cookie():
+        # Generate a new user id
+        user_id = str(uuid.uuid4())
+
+        # Save the user id to the database
+        connection, cursor = dataBase.connect_database("database.db")
+        dataBase.insert_data(cursor, "cookies", "cookie_id", (user_id,))
+
+        # Return the new user id
+        return flask.jsonify(user_id=user_id)
+
+    
         
     ################################################################
     #                                                              #
