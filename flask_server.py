@@ -324,10 +324,18 @@ class Server():
         
         _, cursor = dataBase.connect_database("database.db")
         
+        # Check if the user_id exists in the database
+        cursor.execute("SELECT * FROM cookies WHERE cookie_id = ?", (user_id,))
+        row = cursor.fetchone()
+
+        # If the user id is not in the database, return an error
+        if row is None:
+            return flask.Response("User not found", status=404)
+        
         database_response = dataBase.select_data(cursor, "baskets", "*", f"user_id = '{user_id}'")
         
         if database_response == []:
-            return flask.Response("User not found", status=404)
+            return flask.Response("No basket found for user", status=404)
         
         basket = []
         for product in database_response:
@@ -339,6 +347,14 @@ class Server():
     @app.route("/add_product_to_basket/<user_id>/<product_id>/<count>", methods=["POST"])
     def add_product_to_basket(user_id, product_id, count):
         connection, cursor = dataBase.connect_database("database.db")
+        
+        # Check if the user_id exists in the database
+        cursor.execute("SELECT * FROM cookies WHERE cookie_id = ?", (user_id,))
+        row = cursor.fetchone()
+
+        # If the user id is not in the database, return an error
+        if row is None:
+            return flask.Response("User not found", status=404)
         
         try:
             count = int(count)
@@ -355,7 +371,7 @@ class Server():
         if database_response == []:
             dataBase.insert_data(connection, cursor, "baskets", "user_id, product_id, count", (user_id, product_id, count))
         else:
-            print("database_response: ", database_response)
+            #print("database_response: ", database_response)
             current_count = database_response[0][3]
             new_count = current_count + count
             dataBase.update_data(connection, cursor, "baskets", f"count = {new_count}", f"user_id = '{user_id}' AND product_id = {product_id}")
@@ -365,12 +381,20 @@ class Server():
     @app.route("/remove_product_from_basket/<user_id>/<product_id>", methods=["DELETE"])
     def remove_product_from_basket(user_id, product_id):
         
+        connection, cursor = dataBase.connect_database("database.db")
+        
+        # Check if the user_id exists in the database
+        cursor.execute("SELECT * FROM cookies WHERE cookie_id = ?", (user_id,))
+        row = cursor.fetchone()
+
+        # If the user id is not in the database, return an error
+        if row is None:
+            return flask.Response("User not found", status=404)
+        
         try:
             product_id = int(product_id)
         except ValueError:
             return flask.Response("Invalid product id", status=404)
-        
-        connection, cursor = dataBase.connect_database("database.db")
         
         database_response = dataBase.select_data(cursor, "products", "*", f"id = {product_id}")
         
@@ -380,7 +404,7 @@ class Server():
         database_response = dataBase.select_data(cursor, "baskets", "*", f"user_id = '{user_id}' AND product_id = {product_id}")
         
         if database_response == []:
-            return flask.Response("User not found", status=404)
+            return flask.Response("Product not in user's basket", status=404)
         
         dataBase.delete_data(connection, cursor, "baskets", f"user_id = '{user_id}' AND product_id = {product_id}")
         
@@ -391,14 +415,22 @@ class Server():
         
         connection, cursor = dataBase.connect_database("database.db")
         
+        # Check if the user_id exists in the database
+        cursor.execute("SELECT * FROM cookies WHERE cookie_id = ?", (user_id,))
+        row = cursor.fetchone()
+
+        # If the user id is not in the database, return an error
+        if row is None:
+            return flask.Response("User not found", status=404)
+        
         database_response = dataBase.select_data(cursor, "baskets", "*", f"user_id = '{user_id}'")
         
         if database_response == []:
-            return flask.Response("User not found", status=404)
+            return flask.Response("No basket found for user", status=404)
         
         dataBase.delete_data(connection, cursor, "baskets", f"user_id = '{user_id}'")
         
-        return flask.Response("Basket cleared", status=200)  
+        return flask.Response("Basket cleared", status=200)
     
     
     
