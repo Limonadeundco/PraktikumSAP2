@@ -307,7 +307,25 @@ class Server():
     #                         Basket                               #
     #                                                              #
     ################################################################     
-      
+    @app.route("/get_basket_for_user/<user_id>", methods=["GET"])
+    def get_basket_for_user(user_id):
+        try:
+            user_id = int(user_id)
+        except ValueError:
+            return flask.Response("Invalid user id", status=404)
+        
+        _, cursor = dataBase.connect_database("database.db")
+        
+        database_response = dataBase.select_data(cursor, "baskets", "*", f"user_id = {user_id}")
+        
+        if database_response == []:
+            return flask.Response("Basket not found", status=404)
+        
+        basket = []
+        for product in database_response:
+            basket.append({"id": product[0], "user_id": product[1], "product_id": product[2], "count": product[3]})
+        
+        return flask.jsonify(basket=basket)
       
         
     ################################################################
