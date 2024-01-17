@@ -739,6 +739,7 @@ class TestFlaskServer(unittest.TestCase):
         
         
     def test_get_cookie(self):
+        # Old test
         response = self.app.get("/get_cookie")
         try:
             self.assertEqual(response.status_code, 200)
@@ -755,6 +756,34 @@ class TestFlaskServer(unittest.TestCase):
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
+
+        # New test
+        # Manually insert a UUID into the database
+        user_id = str(uuid.uuid4())
+        dataBase.insert_data(self.conn, self.cursor, "cookies", "cookie_id", (user_id,))
+
+        # First request to the endpoint should be successful
+        response = self.app.get(f"/get_cookie/{user_id}")
+        self.assertEqual(response.status_code, 200)
+        
+        user_id = str(uuid.uuid4())
+
+        # Second request to the endpoint with the same UUID should return 404
+        response = self.app.get(f"/get_cookie/{user_id}")
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.get_data(as_text=True), "Cookie already exists")
+        
+        # Manually insert a UUID into the database
+        user_id = str(uuid.uuid4())
+
+        # First request to the endpoint should be successful
+        response = self.app.get(f"/get_cookie/{user_id}")
+        self.assertEqual(response.status_code, 200)
+
+        # Second request to the endpoint with the same UUID should return 404
+        response = self.app.get(f"/get_cookie/{user_id}")
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.get_data(as_text=True), "Cookie already exists")
         
     def test_check_cookie(self):
         response = self.app.get("/get_cookie")

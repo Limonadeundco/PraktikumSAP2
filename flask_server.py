@@ -422,10 +422,10 @@ class Server():
     #                                                              #
     ################################################################
     @app.route("/get_cookie", methods=["GET"])
-    @app.route("/get_cookie/<uuid>", methods=["GET"])
-    def get_cookie(uuid=None):
+    @app.route("/get_cookie/<custom_uuid>", methods=["GET"])
+    def get_cookie(custom_uuid=None):
         connection, cursor = dataBase.connect_database("database.db")
-        if uuid is None:
+        if custom_uuid is None:
 
             while True:
                 # Generate a new user id
@@ -442,14 +442,14 @@ class Server():
             # Save the new user id to the database
             dataBase.insert_data(connection, cursor, "cookies", "cookie_id", (user_id,))
         else:
-            cursor.execute("SELECT * FROM cookies WHERE cookie_id = ?", (uuid,))
+            cursor.execute("SELECT * FROM cookies WHERE cookie_id = ?", (custom_uuid,))
             row = cursor.fetchone()
 
             # If the user id is not in the database, break the loop
             if row != None:
                 return flask.Response("Cookie already exists", status=404)
             else:
-                user_id = uuid
+                user_id = custom_uuid
                 dataBase.insert_data(connection, cursor, "cookies", "cookie_id", (user_id,))
         
         # Return the new user id
