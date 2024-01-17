@@ -58,24 +58,10 @@ async function addProductToCart(product_id, product_container) {
     let quantity = inputs[product_id - 1].value;
 
     if (quantity < 1) {
-        let error_message = document.createElement("p");
-        error_message.classList.add("error-message");
-        error_message.textContent = "Bitte geben Sie eine gültige Anzahl ein.";
-
-        product_container.appendChild(error_message);
-
-        // Start fading out the error message after 3 seconds
-        setTimeout(function () {
-            error_message.classList.add("fade-out");
-        }, 3000);
-
-        // Remove the error message after it has faded out
-        setTimeout(function () {
-            if (product_container.contains(error_message)) {
-                product_container.removeChild(error_message);
-            }
-        }, 4000);
-
+        displayErrorMessage(
+            "Ungülitge Anzahl, bitte mindestens 1 Produkt auswählen!",
+            product_container
+        );
         return;
     }
 
@@ -93,11 +79,15 @@ async function addProductToCart(product_id, product_container) {
         }
     ).then((response) => {
         if (response.status == 299) {
-            let error_message = document.createElement("p");
-            error_message.classList.add("error-message");
-            error_message.textContent =
-                "Leider haben wir das Produkt so oft nicht auf Lager!";
-            product_container.appendChild(error_message);
+            displayErrorMessage(
+                "Nicht genügend Produkte auf Lager!",
+                product_container
+            );
+        } else if (response.status == 200) {
+            displayErrorMessage(
+                "Produkt erfolgreich in den Warenkorb gelegt!",
+                product_container
+            );
         }
         return;
     });
@@ -175,7 +165,38 @@ async function createRecommendedProducts() {
             }
         });
         product_container.appendChild(product_quantity);
+
+        //create status message
+        let product_status = document.createElement("p");
+        product_status.classList.add("status", "fade-out");
+        product_status.textContent = "";
+        product_container.appendChild(product_status);
     }
+}
+
+function displayErrorMessage(message, product_container) {
+    let error_message = product_container.getElementsByClassName("status")[0];
+    error_message.textContent = message;
+    error_message.classList.add("error-message");
+    error_message.classList.remove("fade-out");
+
+    // Start fading out the error message after 3 seconds
+    setTimeout(function () {
+        error_message.classList.add("fade-out");
+    }, 3000);
+}
+
+function displaySuccessMessage(message, product_container) {
+    let success_message =
+        product_container.getElementsByClassName("success-message")[0];
+    success_message.textContent = message;
+    success_message.classList.add("success-message");
+    success_message.classList.remove("fade-out");
+
+    // Start fading out the success message after 3 seconds
+    setTimeout(function () {
+        success_message.classList.add("fade-out");
+    }, 3000);
 }
 
 window.addEventListener("load", async function () {
