@@ -398,14 +398,14 @@ class Server():
         except ValueError:
             return flask.Response("Invalid user id", status=404)
         
-        _, cursor = dataBase.connect_database("database.db")
+        connection, cursor = dataBase.connect_database("database.db")
         
         database_response = dataBase.select_data(cursor, "baskets", "*", f"user_id = {user_id}")
         
         if database_response == []:
             return flask.Response("Basket not found", status=404)
         
-        dataBase.delete_data(cursor, "baskets", f"user_id = {user_id}")
+        dataBase.delete_data(connection, cursor, "baskets", f"user_id = {user_id}")
         
         return flask.Response("Basket cleared", status=200)  
     
@@ -424,7 +424,7 @@ class Server():
 
         # Save the user id to the database
         connection, cursor = dataBase.connect_database("database.db")
-        dataBase.insert_data(cursor, "cookies", "cookie_id", (user_id,))
+        dataBase.insert_data(connection, cursor, "cookies", "cookie_id", (user_id,))
 
         # Return the new user id
         return flask.jsonify(user_id=user_id)
