@@ -1,6 +1,7 @@
 var products_per_row = 5;
 var rows = 10;
 var search_results = null;
+var products_found_count;
 
 async function httpGetJson(url) {
     return fetch(url)
@@ -44,17 +45,28 @@ async function getImportantData() {
 }
 
 async function generateTable(initData, tableData) {
-    let product_count = initData.productCount;
-
-    if (product_count > rows * products_per_row) {
-        product_count = rows * products_per_row;
-    }
-
     let table = document.getElementById("products");
     let table_body = table.getElementsByTagName("tbody")[0];
 
+    if (initData.allProducts != null) {
+        products_found_count = initData.allProducts.products.length;
+    } else {
+        products_found_count = 0;
+    }
+
     let products_found = document.getElementById("product-count-thead");
-    products_found.innerHTML = product_count + " Produkte gefunden";
+    products_found.innerHTML = products_found_count + " Produkte gefunden";
+
+    if (products_found_count == 0) {
+        let no_products_found = document.createElement("p");
+        no_products_found.innerHTML = "Keine Produkte gefunden";
+        no_products_found.classList.add("no-products-found");
+        table_body.appendChild(no_products_found);
+
+        return;
+    }
+
+    console.log(initData.allProducts.products.length);
 
     for (let i = 0; i < tableData.length; i++) {
         let row = document.createElement("tr");
@@ -100,18 +112,22 @@ async function generateTable(initData, tableData) {
 async function calculateTable(initData) {
     let table = [];
 
-    let products = initData.allProducts.products;
-    console.log(products);
+    if (initData.allProducts != null) {
+        let products = initData.allProducts.products;
+        console.log(products);
 
-    for (let i = 0; i < rows; i++) {
-        let row = [];
-        for (let j = 0; j < products_per_row; j++) {
-            row.push(products[i * products_per_row + j]);
+        for (let i = 0; i < rows; i++) {
+            let row = [];
+            for (let j = 0; j < products_per_row; j++) {
+                row.push(products[i * products_per_row + j]);
+            }
+            table.push(row);
         }
-        table.push(row);
-    }
 
-    return table;
+        return table;
+    } else {
+        return table;
+    }
 }
 
 async function deleteTable() {
