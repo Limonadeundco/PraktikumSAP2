@@ -28,65 +28,21 @@
         </header>
         <h1>Products</h1>
 
+        <input
+            type="text"
+            id="search"
+            placeholder="Suche nach Produkten..."
+            onkeyup="onSearch()"
+        />
+
         <table id="products">
             <thead>
                 <tr>
-                    <th>... Products found</th>
+                    <th id="product-count-thead">... Produkte gefunden</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>
-                        <div class="product">
-                            <img
-                                src="http://127.0.0.1:5000/get_image/1"
-                            />
-                            <p class="name">Product 1</p>
-                            <p class="price">Price: 1.00 €</p>
-                            <p class="description">
-                                Lorem ipsum dolor sit amet, consectetur
-                            </p>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="product">
-                            <img
-                                src="http://127.0.0.1:5000/get_image/1"
-                            />
-                            <p class="name">Product 1</p>
-                            <p class="price">Price: 1.00 €</p>
-                            <p class="description">
-                                Lorem ipsum dolor sit amet, consectetur
-                            </p>
-                        </div>
-                    </td>
-                </tr>
-                <tr>  
-                    <td>
-                        <div class="product">
-                            <img
-                                src="http://127.0.0.1:5000/get_image/1"
-                            />
-                            <p class="name">Product 1</p>
-                            <p class="price">Price: 1.00 €</p>
-                            <p class="description">
-                                Lorem ipsum dolor sit amet, consectetur
-                            </p>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="product">
-                            <img
-                                src="http://127.0.0.1:5000/get_image/1"
-                            />
-                            <p class="name">Product 1</p>
-                            <p class="price">Price: 1.00 €</p>
-                            <p class="description">
-                                Lorem ipsum dolor sit amet, consectetur
-                            </p>
-                        </div>
-                    </td>
-                </tr>
+                <!-- Products inserted here -->
             </tbody>
         <script src="{{url_for('static', filename='products.js')}}"></script>
     </body>
