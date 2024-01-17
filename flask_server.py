@@ -366,6 +366,11 @@ class Server():
         if database_response == []:
             return flask.Response("Product not found", status=404)
         
+        # Check if the product count is less than the requested count
+        product_count = database_response[0][4]  # Assuming the count is the 5th column in the products table
+        if product_count <= count:
+            return flask.Response("Insufficient product count", status=400)
+        
         database_response = dataBase.select_data(cursor, "baskets", "*", f"user_id = '{user_id}' AND product_id = {product_id}")
         
         if database_response == []:
