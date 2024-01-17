@@ -593,11 +593,11 @@ class TestFlaskServer(unittest.TestCase):
         database_commands.DataBase().clear_table(self.conn, self.cursor, "baskets")
         database_commands.DataBase().clear_table(self.conn, self.cursor, "products")
     
-        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "products", "id, name, price, description, count", (1, "test_data", 1.0, "test_data_desc", 1))
-        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "products", "id, name, price, description, count", (4, "test_data4", 1.0, "test_data_desc4", 4))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "products", "id, name, price, description, count", (1, "test_data", 1.0, "test_data_desc", 3))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "products", "id, name, price, description, count", (4, "test_data4", 1.0, "test_data_desc4", 8))
         
-        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 1, price = 1.0, name = 'test_data', description = 'test_data_desc'", "id = 1")
-        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 4, price = 1.0, name = 'test_data4', description = 'test_data_desc4'", "id = 4")
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 3, price = 1.0, name = 'test_data', description = 'test_data_desc'", "id = 1")
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 8, price = 1.0, name = 'test_data4', description = 'test_data_desc4'", "id = 4")
         
         database_commands.DataBase().delete_data(self.conn, self.cursor, "products", "id = 999")
         
@@ -661,7 +661,31 @@ class TestFlaskServer(unittest.TestCase):
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
+        database_commands.DataBase().clear_table(self.conn, self.cursor, "baskets")
+        database_commands.DataBase().clear_table(self.conn, self.cursor, "products")
         
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "products", "id, name, price, description, count", (1, "test_data", 1.0, "test_data_desc", 3))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "products", "id, name, price, description, count", (4, "test_data4", 1.0, "test_data_desc4", 4))
+        self.app.get("/get_cookie/1")
+        
+        #make a new test to test if you can buy more than the count of the product
+        response = self.app.post("/add_product_to_basket/1/1/1")  
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data, b"Product added to basket")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        response = self.app.post("/add_product_to_basket/1/1/5")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(response.data, b'Insufficient product count')
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise      
         
         
     def test_remove_product_from_basket(self):

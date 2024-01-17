@@ -3,6 +3,7 @@
 
 @app.route("/get_all_products", defaults={'limit': None}, methods=["GET"])
 @app.route("/get_all_products/<limit>", methods=["GET"])
+@app.route("/get_number_of_all_products", methods=["GET"])
 
 @app.route("/update_product/<product_id>/<parameters>", methods=["PUT"])
 @app.route("/add_product/<path:parameters>", methods=["POST"])
@@ -17,10 +18,13 @@
 @app.route("/get_image/utility/<name>", methods=["GET"])
 
 @app.route("/get_basket_for_user/<user_id>", methods=["GET"])
+@app.route("/add_product_to_basket/<user_id>/<product_id>/<count>", methods=["POST"])
 @app.route("/remove_product_from_basket/<user_id>/<product_id>", methods=["DELETE"])
 @app.route("/clear_basket/<user_id>", methods=["DELETE"])
 
 @app.route("/get_cookie", methods=["GET"])
+@app.route("/get_cookie/<custom_uuid>", methods=["GET"])
+@app.route("/check_cookie/<uuid>", methods=["GET"])
 
 @app.route("/", methods=["GET"])
 @app.route("/basket", methods=["GET"])
