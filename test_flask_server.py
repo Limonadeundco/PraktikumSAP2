@@ -548,7 +548,7 @@ class TestFlaskServer(unittest.TestCase):
         #print(response.data)
         try:
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.data, b'{"basket":[{"id":1,"product_id":1,"count":1},{"id":2,"product_id":4,"count":4}]}\n')
+            self.assertEqual(response.data, b'{"basket":[{"count":1,"id":1,"product_id":1,"user_id":1},{"count":4,"id":2,"product_id":4,"user_id":1}]}\n')
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
@@ -577,6 +577,169 @@ class TestFlaskServer(unittest.TestCase):
         try:
             self.assertEqual(response.status_code, 404)
             self.assertEqual(response.data, b"User not found")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+    def test_add_product_to_basket(self):
+        database_commands.DataBase().clear_table(self.conn, self.cursor, "baskets")
+        database_commands.DataBase().clear_table(self.conn, self.cursor, "products")
+    
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "products", "id, name, price, description, count", (1, "test_data", 1.0, "test_data_desc", 1))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "products", "id, name, price, description, count", (4, "test_data4", 1.0, "test_data_desc4", 4))
+        
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 1, price = 1.0, name = 'test_data', description = 'test_data_desc'", "id = 1")
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 4, price = 1.0, name = 'test_data4', description = 'test_data_desc4'", "id = 4")
+        
+        database_commands.DataBase().delete_data(self.conn, self.cursor, "products", "id = 999")
+        
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (1, 1, 1, 1))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (2, 1, 4, 4))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (3, 2, 1, 1))
+        
+        response = self.app.post("/add_product_to_basket/1/1/1")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data, b"Product added to basket")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        response = self.app.post("/add_product_to_basket/1/4/4")
+        #print(response
+        
+    def test_remove_product_from_basket(self):
+        database_commands.DataBase().clear_table(self.conn, self.cursor, "baskets")
+        database_commands.DataBase().clear_table(self.conn, self.cursor, "products")
+        database_commands.DataBase().clear_table(self.conn, self.cursor, "sqlite_sequence")
+    
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "products", "id, name, price, description, count", (1, "test_data", 1.0, "test_data_desc", 1))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "products", "id, name, price, description, count", (2, "test_data4", 1.0, "test_data_desc4", 4))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "products", "id, name, price, description, count", (4, "test_data4", 1.0, "test_data_desc4", 4))
+        
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 1, price = 1.0, name = 'test_data', description = 'test_data_desc'", "id = 1")
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 4, price = 1.0, name = 'test_data4', description = 'test_data_desc4'", "id = 4")
+        
+        database_commands.DataBase().delete_data(self.conn, self.cursor, "products", "id = 999")
+        
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (1, 1, 1, 1))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (1, 1, 4, 4))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (3, 2, 1, 1))
+        
+        response = self.app.delete("/remove_product_from_basket/1/1")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data, b"Product removed from basket")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        #check if the product was removed from the database
+        self.cursor.execute("SELECT * FROM baskets WHERE user_id = 1 AND product_id = 1")
+        row = self.cursor.fetchone()
+        self.assertIsNone(row)
+        
+        response = self.app.delete("/remove_product_from_basket/1/4")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data, b"Product removed from basket")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        response = self.app.delete("/remove_product_from_basket/1/999")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.data, b"Product not found")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        response = self.app.delete("/remove_product_from_basket/999/1")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.data, b"User not found")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+    
+    def test_clear_basket(self):
+        database_commands.DataBase().clear_table(self.conn, self.cursor, "baskets")
+        database_commands.DataBase().clear_table(self.conn, self.cursor, "products")
+    
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "products", "id, name, price, description, count", (1, "test_data", 1.0, "test_data_desc", 1))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "products", "id, name, price, description, count", (4, "test_data4", 1.0, "test_data_desc4", 4))
+        
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 1, price = 1.0, name = 'test_data', description = 'test_data_desc'", "id = 1")
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 4, price = 1.0, name = 'test_data4', description = 'test_data_desc4'", "id = 4")
+        
+        database_commands.DataBase().delete_data(self.conn, self.cursor, "products", "id = 999")
+        
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (1, 1, 1, 1))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (2, 1, 4, 4))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (3, 2, 1, 1))
+        
+        response = self.app.delete("/clear_basket/1")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data, b"Basket cleared")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        #check if the basket is empty with the database
+        self.cursor.execute("SELECT * FROM baskets WHERE user_id = 1")
+        row = self.cursor.fetchone()
+        self.assertIsNone(row)
+        
+        response = self.app.delete("/clear_basket/2")
+        #print(response.data)
+
+        try:
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data, b"Basket cleared")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        #check if the basket is empty with the database
+        self.cursor.execute("SELECT * FROM baskets WHERE user_id = 2")
+        row = self.cursor.fetchone()
+        self.assertIsNone(row)
+        
+        response = self.app.delete("/clear_basket/999")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.data, b"User not found")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        response = self.app.delete("/clear_basket/invalid_id")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.data, b"Invalid id")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        
+    def test_get_cookie(self):
+        response = self.app.get("/get_cookie")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data, b"Cookie set")
+            #check if the number is an integer and at least 1 
+            self.assertTrue(int(response.headers["Set-Cookie"]) >= 1)
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise

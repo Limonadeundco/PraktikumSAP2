@@ -44,8 +44,11 @@ class DataBase():
         cursor.execute("UPDATE " + table + " SET " + columns + " WHERE " + condition)
         connection.commit()
         
-    def delete_data(self, connection, cursor, table, condition):
-        cursor.execute("DELETE FROM " + table + " WHERE " + condition)
+    def delete_data(self, connection, cursor, table, condition=None):
+        if condition == None:
+            cursor.execute("DELETE FROM " + table)
+        else:
+            cursor.execute("DELETE FROM " + table + " WHERE " + condition)
         connection.commit()
         
     def drop_table(self, conn, cursor, table):
