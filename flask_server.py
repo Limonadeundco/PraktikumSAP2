@@ -120,6 +120,14 @@ class Server():
 
         return flask.jsonify(products=response)
     
+    @app.route("/get_number_of_all_products", methods=["GET"])
+    def get_number_of_all_products():
+        _, cursor = dataBase.connect_database("database.db")
+        
+        database_response = dataBase.select_data(cursor, "products", "count(*)")
+        
+        return database_response[0][0]
+    
     
     ################################################################
     #                                                              #    
@@ -347,7 +355,10 @@ class Server():
         if database_response == []:
             dataBase.insert_data(connection, cursor, "baskets", "user_id, product_id, count", (user_id, product_id, count))
         else:
-            dataBase.update_data(connection, cursor, "baskets", f"count = {count}", f"user_id = '{user_id}' AND product_id = {product_id}")
+            print("database_response: ", database_response)
+            current_count = database_response[0][3]
+            new_count = current_count + count
+            dataBase.update_data(connection, cursor, "baskets", f"count = {new_count}", f"user_id = '{user_id}' AND product_id = {product_id}")
         
         return flask.Response("Product added to basket", status=200)
     

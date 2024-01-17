@@ -546,15 +546,15 @@ class TestFlaskServer(unittest.TestCase):
         
         database_commands.DataBase().delete_data(self.conn, self.cursor, "products", "id = 999")
         
-        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (1, 1, 1, 1))
-        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (2, 1, 4, 4))
-        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (3, 2, 1, 1))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (1, "1", 1, 1))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (2, "1", 4, 4))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (3, "2", 1, 1))
         
         response = self.app.get("/get_basket_for_user/1")
         #print(response.data)
         try:
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.data, b'{"basket":[{"product":{"count":1,"id":1,"product_id":1,"user_id":1}},{"product":{"count":4,"id":2,"product_id":4,"user_id":1}}]}\n')
+            self.assertEqual(response.data,b'{"basket":[{"product":{"count":1,"id":1,"product_id":1,"user_id":"1"}},{"product":{"count":4,"id":2,"product_id":4,"user_id":"1"}}]}\n')
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
@@ -563,7 +563,7 @@ class TestFlaskServer(unittest.TestCase):
         #print(response.data)
         try:
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.data, b'{"basket":[{"product":{"count":1,"id":3,"product_id":1,"user_id":2}}]}\n')
+            self.assertEqual(response.data, b'{"basket":[{"product":{"count":1,"id":3,"product_id":1,"user_id":"2"}}]}\n')
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
@@ -573,7 +573,7 @@ class TestFlaskServer(unittest.TestCase):
         #print(response.data)
         try:
             self.assertEqual(response.status_code, 404)
-            self.assertEqual(response.data, b"Invalid id")
+            self.assertEqual(response.data, b"User not found")
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
@@ -599,9 +599,9 @@ class TestFlaskServer(unittest.TestCase):
         
         database_commands.DataBase().delete_data(self.conn, self.cursor, "products", "id = 999")
         
-        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (1, 1, 1, 1))
-        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (2, 1, 4, 4))
-        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (3, 2, 1, 1))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (1, "1", 1, 1))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (2, "1", 4, 4))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (3, "2", 1, 1))
         
         response = self.app.post("/add_product_to_basket/1/1/1")
         #print(response.data)
@@ -614,6 +614,52 @@ class TestFlaskServer(unittest.TestCase):
         
         response = self.app.post("/add_product_to_basket/1/4/4")
         #print(response
+        try:
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data, b"Product added to basket")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        #test if the product was added to the database
+        self.cursor.execute("SELECT * FROM baskets WHERE user_id = '1' AND product_id = 1")
+        row = self.cursor.fetchone()
+        self.assertIsNotNone(row)
+        
+        response = self.app.post("/add_product_to_basket/1/999/999")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.data, b"Product not found")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        #when the same product is added again, the count should be increased
+        response = self.app.post("/add_product_to_basket/1/1/1")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data, b"Product added to basket")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        #check if the count was increased
+        self.cursor.execute("SELECT count FROM baskets WHERE user_id = '1' AND product_id = 1")
+        row = self.cursor.fetchone()
+        self.assertEqual(row[0], 3)
+        
+        response = self.app.post("/add_product_to_basket/invald_id/1/1")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.data, b"Invalid id")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        
         
     def test_remove_product_from_basket(self):
         database_commands.DataBase().clear_table(self.conn, self.cursor, "baskets")
@@ -629,9 +675,9 @@ class TestFlaskServer(unittest.TestCase):
         
         database_commands.DataBase().delete_data(self.conn, self.cursor, "products", "id = 999")
         
-        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (1, 1, 1, 1))
-        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (2, 1, 4, 4))
-        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (3, 2, 1, 1))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (1, "1", 1, 1))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (2, "1", 4, 4))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (3, "2", 1, 1))
         
         response = self.app.delete("/remove_product_from_basket/1/1")
         #print(response.data)
@@ -686,9 +732,9 @@ class TestFlaskServer(unittest.TestCase):
         
         database_commands.DataBase().delete_data(self.conn, self.cursor, "products", "id = 999")
         
-        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (1, 1, 1, 1))
-        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (2, 1, 4, 4))
-        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (3, 2, 1, 1))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (1, "1", 1, 1))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (2, "1", 4, 4))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (3, "2", 1, 1))
         
         response = self.app.delete("/clear_basket/1")
         #print(response.data)
@@ -732,7 +778,7 @@ class TestFlaskServer(unittest.TestCase):
         #print(response.data)
         try:
             self.assertEqual(response.status_code, 404)
-            self.assertEqual(response.data, b"Invalid id")
+            self.assertEqual(response.data, b'User not found')
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
@@ -846,6 +892,42 @@ class TestFlaskServer(unittest.TestCase):
             self.fail("Unexpected response data:" + str(response.data))
             raise
     
+    def test_get_number_off_all_products(self):
+        database_commands.DataBase().clear_table(self.conn, self.cursor, "products")
+        
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data", 1.0, "test_data_desc", 1))
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data4", 1.0, "test_data_desc4", 4))
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data2", 1.0, "test_data_desc2", 2))
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data3", 1.0, "test_data_desc3", 3))
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data5", 1.0, "test_data_desc5", 5))
+        
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 1, price = 1.0, name = 'test_data', description = 'test_data_desc'", "id = 1")
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 4, price = 1.0, name = 'test_data4', description = 'test_data_desc4'", "id = 2")
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 2, price = 1.0, name = 'test_data2', description = 'test_data_desc2'", "id = 3")
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 3, price = 1.0, name = 'test_data3', description = 'test_data_desc3'", "id = 4")
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 5, price = 1.0, name = 'test_data5', description = 'test_data_desc5'", "id = 5")
+        
+        response = self.app.get("/get_number_of_all_products")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data, b'{"number_of_products":5}\n')
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        database_commands.DataBase().clear_table(self.conn, self.cursor, "products")
+        
+        response = self.app.get("/get_number_of_all_products")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data, b'{"number_of_products":0}\n')
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        
     
     def tearDown(self):
         self.app = None
