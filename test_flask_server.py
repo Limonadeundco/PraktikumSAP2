@@ -530,6 +530,7 @@ class TestFlaskServer(unittest.TestCase):
     def test_get_basket_for_user(self):
         database_commands.DataBase().clear_table(self.conn, self.cursor, "baskets")
         database_commands.DataBase().clear_table(self.conn, self.cursor, "products")
+        
        
         database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "products", "id, name, price, description, count", (1, "test_data", 1.0, "test_data_desc", 1))
         database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "products", "id, name, price, description, count", (4, "test_data4", 1.0, "test_data_desc4", 4))
@@ -557,6 +558,25 @@ class TestFlaskServer(unittest.TestCase):
         try:
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data, b'{"basket":[{"id":3,"product_id":1,"count":1}]}\n')
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        #invalid values
+        response = self.app.get("/get_basket_for_user/invalid_id")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.data, b"Invalid id")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        response = self.app.get("/get_basket_for_user/999")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.data, b"User not found")
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
