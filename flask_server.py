@@ -315,20 +315,21 @@ class Server():
         try:
             user_id = int(user_id)
         except ValueError:
-            return flask.Response("Invalid user id", status=404)
+            return flask.Response("Invalid id", status=404)
         
         _, cursor = dataBase.connect_database("database.db")
         
         database_response = dataBase.select_data(cursor, "baskets", "*", f"user_id = {user_id}")
         
         if database_response == []:
-            return flask.Response("Basket not found", status=404)
+            return flask.Response("User not found", status=404)
         
         basket = []
         for product in database_response:
             basket.append({"id": product[0], "user_id": product[1], "product_id": product[2], "count": product[3]})
         
         return flask.jsonify(basket=basket)
+    
     
     @app.route("/add_product_to_basket/<user_id>/<product_id>/<count>", methods=["POST"])
     def add_product_to_basket(user_id, product_id, count):
@@ -368,14 +369,14 @@ class Server():
         try:
             user_id = int(user_id)
         except ValueError:
-            return flask.Response("Invalid user id", status=404)
+            return flask.Response("Invalid id", status=404)
         
         try:
             product_id = int(product_id)
         except ValueError:
             return flask.Response("Invalid product id", status=404)
         
-        _, cursor = dataBase.connect_database("database.db")
+        connection, cursor = dataBase.connect_database("database.db")
         
         database_response = dataBase.select_data(cursor, "products", "*", f"id = {product_id}")
         
@@ -385,9 +386,9 @@ class Server():
         database_response = dataBase.select_data(cursor, "baskets", "*", f"user_id = {user_id} AND product_id = {product_id}")
         
         if database_response == []:
-            return flask.Response("Product not found in basket", status=404)
+            return flask.Response("User not found", status=404)
         
-        dataBase.delete_data(cursor, "baskets", f"user_id = {user_id} AND product_id = {product_id}")
+        dataBase.delete_data(connection, cursor, "baskets", f"user_id = {user_id} AND product_id = {product_id}")
         
         return flask.Response("Product removed from basket", status=200)
     
@@ -396,14 +397,14 @@ class Server():
         try:
             user_id = int(user_id)
         except ValueError:
-            return flask.Response("Invalid user id", status=404)
+            return flask.Response("Invalid id", status=404)
         
         connection, cursor = dataBase.connect_database("database.db")
         
         database_response = dataBase.select_data(cursor, "baskets", "*", f"user_id = {user_id}")
         
         if database_response == []:
-            return flask.Response("Basket not found", status=404)
+            return flask.Response("User not found", status=404)
         
         dataBase.delete_data(connection, cursor, "baskets", f"user_id = {user_id}")
         
