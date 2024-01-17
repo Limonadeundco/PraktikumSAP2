@@ -503,6 +503,7 @@ class Server():
     ################################################################
     @app.route("/search/<search_term>", methods=["GET"])
     @app.route("/search", defaults={'search_term': None}, methods=["GET"])
+    @app.route("/search/", defaults={'search_term': None}, methods=["GET"])
     def search(search_term=None):
         if search_term == None or search_term == "":
             return flask.Response("No search term given", status=404)

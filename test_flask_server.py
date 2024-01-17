@@ -985,6 +985,9 @@ class TestFlaskServer(unittest.TestCase):
             raise
         
     def test_search(self):
+        database_commands.DataBase().drop_table(self.conn, self.cursor, "products")
+        database_commands.DataBase().create_table(self.conn, self.cursor, "products", "id INTEGER PRIMARY KEY, name TEXT, price REAL, description TEXT, count INTEGER")
+        
         database_commands.DataBase().clear_table(self.conn, self.cursor, "products")
         
         database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data", 1.0, "test_data_desc", 1))
@@ -1058,7 +1061,7 @@ class TestFlaskServer(unittest.TestCase):
         #print(response.data)
         try:
             self.assertEqual(response.status_code, 404)
-            self.assertEqual(response.data, b'No products found')
+            self.assertEqual(response.data, b'No search term given')
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
