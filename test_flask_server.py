@@ -549,6 +549,8 @@ class TestFlaskServer(unittest.TestCase):
         database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (1, "1", 1, 1))
         database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (2, "1", 4, 4))
         database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (3, "2", 1, 1))
+        self.app.get("/get_cookie/1")
+        self.app.get("/get_cookie/2")
         
         response = self.app.get("/get_basket_for_user/1")
         #print(response.data)
@@ -602,6 +604,7 @@ class TestFlaskServer(unittest.TestCase):
         database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (1, "1", 1, 1))
         database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (2, "1", 4, 4))
         database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (3, "2", 1, 1))
+        self.app.get("/get_cookie/1")
         
         response = self.app.post("/add_product_to_basket/1/1/1")
         #print(response.data)
@@ -654,7 +657,7 @@ class TestFlaskServer(unittest.TestCase):
         #print(response.data)
         try:
             self.assertEqual(response.status_code, 404)
-            self.assertEqual(response.data, b"Invalid id")
+            self.assertEqual(response.data, b"User not found")
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
@@ -678,6 +681,7 @@ class TestFlaskServer(unittest.TestCase):
         database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (1, "1", 1, 1))
         database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (2, "1", 4, 4))
         database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (3, "2", 1, 1))
+        self.app.get("/get_cookie/1")
         
         response = self.app.delete("/remove_product_from_basket/1/1")
         #print(response.data)
@@ -735,7 +739,9 @@ class TestFlaskServer(unittest.TestCase):
         database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (1, "1", 1, 1))
         database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (2, "1", 4, 4))
         database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (3, "2", 1, 1))
-        
+        self.app.get("/get_cookie/1")
+        self.app.get("/get_cookie/2")
+
         response = self.app.delete("/clear_basket/1")
         #print(response.data)
         try:
@@ -752,7 +758,6 @@ class TestFlaskServer(unittest.TestCase):
         
         response = self.app.delete("/clear_basket/2")
         #print(response.data)
-
         try:
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data, b"Basket cleared")

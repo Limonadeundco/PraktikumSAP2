@@ -325,7 +325,7 @@ class Server():
         _, cursor = dataBase.connect_database("database.db")
         
         # Check if the user_id exists in the database
-        cursor.execute("SELECT * FROM users WHERE user_id = ?", (user_id,))
+        cursor.execute("SELECT * FROM cookies WHERE cookie_id = ?", (user_id,))
         row = cursor.fetchone()
 
         # If the user id is not in the database, return an error
@@ -349,7 +349,7 @@ class Server():
         connection, cursor = dataBase.connect_database("database.db")
         
         # Check if the user_id exists in the database
-        cursor.execute("SELECT * FROM users WHERE user_id = ?", (user_id,))
+        cursor.execute("SELECT * FROM cookies WHERE cookie_id = ?", (user_id,))
         row = cursor.fetchone()
 
         # If the user id is not in the database, return an error
@@ -371,7 +371,7 @@ class Server():
         if database_response == []:
             dataBase.insert_data(connection, cursor, "baskets", "user_id, product_id, count", (user_id, product_id, count))
         else:
-            print("database_response: ", database_response)
+            #print("database_response: ", database_response)
             current_count = database_response[0][3]
             new_count = current_count + count
             dataBase.update_data(connection, cursor, "baskets", f"count = {new_count}", f"user_id = '{user_id}' AND product_id = {product_id}")
@@ -384,7 +384,7 @@ class Server():
         connection, cursor = dataBase.connect_database("database.db")
         
         # Check if the user_id exists in the database
-        cursor.execute("SELECT * FROM users WHERE user_id = ?", (user_id,))
+        cursor.execute("SELECT * FROM cookies WHERE cookie_id = ?", (user_id,))
         row = cursor.fetchone()
 
         # If the user id is not in the database, return an error
@@ -416,7 +416,7 @@ class Server():
         connection, cursor = dataBase.connect_database("database.db")
         
         # Check if the user_id exists in the database
-        cursor.execute("SELECT * FROM users WHERE user_id = ?", (user_id,))
+        cursor.execute("SELECT * FROM cookies WHERE cookie_id = ?", (user_id,))
         row = cursor.fetchone()
 
         # If the user id is not in the database, return an error
