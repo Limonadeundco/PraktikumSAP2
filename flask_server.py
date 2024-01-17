@@ -496,6 +496,25 @@ class Server():
         return flask.Response("Cookie found", status=200)
 
 
+    ################################################################
+    #                                                              #
+    #                         Search                               #
+    #                                                              #
+    ################################################################
+    @app.route("/search/<search_term>", methods=["GET"])
+    def search(search_term):
+        _, cursor = dataBase.connect_database("database.db")
+        
+        database_response = dataBase.select_data(cursor, "products", "*", f"name LIKE '%{search_term}%'")
+        
+        if database_response == []:
+            return flask.Response("No products found", status=404)
+        
+        products = []
+        for product in database_response:
+            products.append({"id": product[0], "name": product[1], "price": product[2], "description": product[3], "count": product[4]})
+        
+        return flask.jsonify(products=products)
 
     ################################################################
     #                                                              #
