@@ -457,6 +457,7 @@ class TestFlaskServer(unittest.TestCase):
         try:
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.content_type, 'image/png')
+            response.close()
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
@@ -466,6 +467,7 @@ class TestFlaskServer(unittest.TestCase):
         try:
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.content_type, 'image/png')
+            response.close()
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
@@ -475,6 +477,7 @@ class TestFlaskServer(unittest.TestCase):
         try:
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.content_type, 'image/png')
+            response.close()
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
@@ -485,6 +488,7 @@ class TestFlaskServer(unittest.TestCase):
         try:
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.content_type, 'image/png')
+            response.close()
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
@@ -549,7 +553,7 @@ class TestFlaskServer(unittest.TestCase):
         #print(response.data)
         try:
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.data, b'{"basket":[{"count":1,"id":1,"product_id":1,"user_id":1},{"count":4,"id":2,"product_id":4,"user_id":1}]}\n')
+            self.assertEqual(response.data, b'{"basket":[{"product":{"count":1,"id":1,"product_id":1,"user_id":1}},{"product":{"count":4,"id":2,"product_id":4,"user_id":1}}]}\n')
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
@@ -558,7 +562,7 @@ class TestFlaskServer(unittest.TestCase):
         #print(response.data)
         try:
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.data, b'{"basket":[{"count":1,"id":3,"product_id":1,"user_id":2}]}\n')
+            self.assertEqual(response.data, b'{"basket":[{"product":{"count":1,"id":3,"product_id":1,"user_id":2}}]}\n')
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
