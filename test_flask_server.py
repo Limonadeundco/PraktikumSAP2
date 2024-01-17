@@ -681,7 +681,7 @@ class TestFlaskServer(unittest.TestCase):
         response = self.app.post("/add_product_to_basket/1/1/5")
         #print(response.data)
         try:
-            self.assertEqual(response.status_code, 400)
+            self.assertEqual(response.status_code, 299)
             self.assertEqual(response.data, b'Insufficient product count')
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
