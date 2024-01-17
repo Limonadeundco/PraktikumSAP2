@@ -65,12 +65,12 @@ async function addProductToCart(product_id, product_container) {
         product_container.appendChild(error_message);
 
         // Start fading out the error message after 3 seconds
-        setTimeout(function() {
+        setTimeout(function () {
             error_message.classList.add("fade-out");
         }, 3000);
 
         // Remove the error message after it has faded out
-        setTimeout(function() {
+        setTimeout(function () {
             if (product_container.contains(error_message)) {
                 product_container.removeChild(error_message);
             }
@@ -92,8 +92,11 @@ async function addProductToCart(product_id, product_container) {
             method: "POST",
         }
     ).then((response) => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.status == 400) {
+            let error_message = document.createElement("p");
+            error_message.classList.add("error-message");
+            error_message.textContent =
+                "Leider haben wir das Produkt so oft nicht auf Lager!";
         }
         return response.text();
     });
