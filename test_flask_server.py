@@ -1026,21 +1026,44 @@ class TestFlaskServer(unittest.TestCase):
             self.fail("Unexpected response data:" + str(response.data))
             raise
     
-    """    @app.route("/search/<search_term>", methods=["GET"])
-    def search(search_term):
-        _, cursor = dataBase.connect_database("database.db")
+        #test for invalid values and empty search and for test data instead of test_data3 for example and for ###test_data### should be possible too
+        response = self.app.get("/search/invalid_id")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.data, b'No products found')
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
         
-        database_response = dataBase.select_data(cursor, "products", "*", f"name LIKE '%{search_term}%'")
+        response = self.app.get("/search/")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.data, b"No search term given")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
         
-        if database_response == []:
-            return flask.Response("No products found", status=404)
+        response = self.app.get("/search/testadata")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.data, b'No products found')
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
         
-        products = []
-        for product in database_response:
-            products.append({"id": product[0], "name": product[1], "price": product[2], "description": product[3], "count": product[4]})
+        response = self.app.get("/search/###test_data###")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.data, b'No products found')
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
         
-        return flask.jsonify(products=products)
-"""
+        
     
     def tearDown(self):
         self.app = None

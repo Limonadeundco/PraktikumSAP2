@@ -502,7 +502,11 @@ class Server():
     #                                                              #
     ################################################################
     @app.route("/search/<search_term>", methods=["GET"])
-    def search(search_term):
+    @app.route("/search", defaults={'search_term': None}, methods=["GET"])
+    def search(search_term=None):
+        if search_term == None or search_term == "":
+            return flask.Response("No search term given", status=404)
+        
         _, cursor = dataBase.connect_database("database.db")
         
         database_response = dataBase.select_data(cursor, "products", "*", f"name LIKE '%{search_term}%'")
