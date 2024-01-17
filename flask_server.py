@@ -332,6 +332,8 @@ class Server():
     
     @app.route("/add_product_to_basket/<user_id>/<product_id>/<count>", methods=["POST"])
     def add_product_to_basket(user_id, product_id, count):
+        connection, cursor = dataBase.connect_database("database.db")
+        
         try:
             user_id = int(user_id)
         except ValueError:
@@ -347,8 +349,6 @@ class Server():
         except ValueError:
             return flask.Response("Invalid count", status=404)
         
-        _, cursor = dataBase.connect_database("database.db")
-        
         database_response = dataBase.select_data(cursor, "products", "*", f"id = {product_id}")
         
         if database_response == []:
@@ -359,7 +359,7 @@ class Server():
         if database_response == []:
             dataBase.insert_data(cursor, "baskets", "user_id, product_id, count", (user_id, product_id, count))
         else:
-            dataBase.update_data(cursor, "baskets", f"count = {count}", f"user_id = {user_id} AND product_id = {product_id}")
+            dataBase.update_data(connection, cursor, "baskets", f"count = {count}", f"user_id = {user_id} AND product_id = {product_id}")
         
         return flask.Response("Product added to basket", status=200)
     
