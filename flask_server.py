@@ -326,7 +326,7 @@ class Server():
         
         basket = []
         for product in database_response:
-            basket.append({"id": product[0], "user_id": product[1], "product_id": product[2], "count": product[3]})
+            basket.append({"product": {"id": product[0], "user_id": product[1], "product_id": product[2], "count": product[3]}})
         
         return flask.jsonify(basket=basket)
     
@@ -440,6 +440,10 @@ class Server():
     @app.route("/", methods=["GET"])
     def webstore():
         return flask.render_template("main_page.html")
+    
+    @app.route("/basket", methods=["GET"])
+    def basket():
+        return flask.render_template("basket.html")
 
 
 ################################################################
