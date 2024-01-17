@@ -54,14 +54,18 @@ async function checkForUserCookie() {
 }
 
 async function addProductToCart(product_id) {
-    console.log("Adding product " + product_id + " to cart");
+    let inputs = document.getElementsByClassName("product-quantity");
+    let quantity = inputs[product_id - 1].value;
+
+    console.log("Adding product " + product_id + " " + quantity + "x to cart");
     let user_cookie = document.cookie;
     fetch(
         "http://127.0.0.1:5000/add_product_to_basket/" +
             user_cookie +
             "/" +
             product_id +
-            "/1",
+            "/" +
+            quantity,
         {
             method: "POST",
         }
