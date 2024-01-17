@@ -414,14 +414,13 @@ class Server():
         
         return flask.Response("Basket cleared", status=200)  
     
+    
+    
     ################################################################
     #                                                              #
     #                         Cookies                              #
     #                                                              #
     ################################################################
-    
-
-
     @app.route("/get_cookie", methods=["GET"])
     def get_cookie():
         # Generate a new user id
@@ -433,9 +432,20 @@ class Server():
 
         # Return the new user id
         return flask.jsonify(user_id=user_id)
-
     
+    @app.route("/check_cookie/<uuid>", methods=["GET"])
+    def check_cookie(uuid):
+        _, cursor = dataBase.connect_database("database.db")
         
+        database_response = dataBase.select_data(cursor, "cookies", "*", f"cookie_id = '{uuid}'")
+        
+        if database_response == []:
+            return flask.Response("Cookie not found", status=404)
+        
+        return flask.Response("Cookie found", status=200)
+
+
+
     ################################################################
     #                                                              #
     #                         Websites                             #
@@ -456,6 +466,7 @@ class Server():
     @app.route("/contact", methods=["GET"])
     def contact():
         return flask.render_template("contact.html")
+
 
 
 ################################################################
