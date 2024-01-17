@@ -337,11 +337,6 @@ class Server():
         connection, cursor = dataBase.connect_database("database.db")
         
         try:
-            product_id = int(product_id)
-        except ValueError:
-            return flask.Response("Invalid product id", status=404)
-        
-        try:
             count = int(count)
         except ValueError:
             return flask.Response("Invalid count", status=404)
@@ -362,10 +357,6 @@ class Server():
     
     @app.route("/remove_product_from_basket/<user_id>/<product_id>", methods=["DELETE"])
     def remove_product_from_basket(user_id, product_id):
-        try:
-            user_id = int(user_id)
-        except ValueError:
-            return flask.Response("Invalid id", status=404)
         
         try:
             product_id = int(product_id)
@@ -390,10 +381,6 @@ class Server():
     
     @app.route("/clear_basket/<user_id>", methods=["DELETE"])
     def clear_basket(user_id):
-        try:
-            user_id = int(user_id)
-        except ValueError:
-            return flask.Response("Invalid id", status=404)
         
         connection, cursor = dataBase.connect_database("database.db")
         
