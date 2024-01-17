@@ -99,7 +99,7 @@ async function addProductToCart(product_id, product_container) {
                 "Leider haben wir das Produkt so oft nicht auf Lager!";
             product_container.appendChild(error_message);
         }
-        return response.text();
+        return;
     });
 }
 
