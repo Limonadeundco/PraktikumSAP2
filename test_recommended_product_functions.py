@@ -48,20 +48,20 @@ class TestRecommendedProductFunctions(unittest.TestCase):
         self.dataBase.insert_data(self.connection, self.cursor, "products", "name, price, description, count, sales", ("product4", 1.0, "description4", 1, 1,))
         self.dataBase.insert_data(self.connection, self.cursor, "products", "name, price, description, count, sales", ("product5", 1.0, "description5", 1, 1,))
 
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, f"{current_year}-{current_month}-15 00:10:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, f"{current_year}-{current_month}-15 00:30:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, f"{current_year}-{current_month}-15 00:50:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, f"{current_year}-{current_month}-15 00:00:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, f"{current_year}-{current_month}-15 00:20:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, f"{current_year}-{current_month}-{current_day} 00:10:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, f"{current_year}-{current_month}-{current_day} 00:30:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, f"{current_year}-{current_month}-{current_day} 00:50:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (1, f"{current_year}-{current_month}-{current_day} 00:00:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, f"{current_year}-{current_month}-{current_day} 00:20:00", 1,))
 
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, f"{current_year}-{current_month}-15 00:30:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, f"{current_year}-{current_month}-15 00:50:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, f"{current_year}-{current_month}-15 00:40:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (3, f"{current_year}-{current_month}-15 00:00:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (3, f"{current_year}-{current_month}-15 00:20:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, f"{current_year}-{current_month}-{current_day} 00:30:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, f"{current_year}-{current_month}-{current_day} 00:50:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (2, f"{current_year}-{current_month}-{current_day} 00:40:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (3, f"{current_year}-{current_month}-{current_day} 00:00:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (3, f"{current_year}-{current_month}-{current_day} 00:20:00", 1,))
 
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (3, f"{current_year}-{current_month}-15 00:10:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (4, f"{current_year}-{current_month}-15 00:40:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (3, f"{current_year}-{current_month}-{current_day} 00:10:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (4, f"{current_year}-{current_month}-{current_day} 00:40:00", 1,))
         self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (4, f"{current_year}-{current_month}-{current_day} 00:30:00", 1,))
         
     def test_generate_recommended_products(self):
