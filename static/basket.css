@@ -77,7 +77,7 @@ nav ul {
     list-style-type: none;
     padding-top: 3vh;
     padding-bottom: 3vh;
-    margin-left: 8vw;
+    margin-left: 2vw;
     margin-right: 8vw;
     display: flex;
     justify-content: space-between;
@@ -91,4 +91,5 @@ nav ul li a {
     font-size: 1.75vw;
     font-weight: bold;
     align-self: center;
+    padding: 2vh;
 }
