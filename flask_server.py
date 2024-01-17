@@ -313,10 +313,6 @@ class Server():
     ################################################################     
     @app.route("/get_basket_for_user/<user_id>", methods=["GET"])
     def get_basket_for_user(user_id):
-        try:
-            user_id = int(user_id)
-        except ValueError:
-            return flask.Response("Invalid id", status=404)
         
         _, cursor = dataBase.connect_database("database.db")
         
