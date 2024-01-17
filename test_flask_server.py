@@ -624,7 +624,7 @@ class TestFlaskServer(unittest.TestCase):
         database_commands.DataBase().delete_data(self.conn, self.cursor, "products", "id = 999")
         
         database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (1, 1, 1, 1))
-        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (1, 1, 4, 4))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (2, 1, 4, 4))
         database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (3, 2, 1, 1))
         
         response = self.app.delete("/remove_product_from_basket/1/1")
