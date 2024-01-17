@@ -530,10 +530,6 @@ class TestFlaskServer(unittest.TestCase):
     def test_get_basket_for_user(self):
         database_commands.DataBase().clear_table(self.conn, self.cursor, "baskets")
         database_commands.DataBase().clear_table(self.conn, self.cursor, "products")
-        database_commands.DataBase().clear_table(self.conn, self.cursor, "users")
-        
-        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "users", "id, username, password, email", (1, "test_user", "test_password", "test_email"))
-        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "users", "id, username, password, email", (2, "test_user2", "test_password2", "test_email2"))
         
         database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "products", "id, name, price, description, count", (1, "test_data", 1.0, "test_data_desc", 1))
         database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "products", "id, name, price, description, count", (4, "test_data4", 1.0, "test_data_desc4", 4))
