@@ -69,7 +69,8 @@ window.addEventListener("load", async function () {
         cell1.innerHTML = product_infos.name;
         cell2.innerHTML = product_infos.price + "€";
         cell3.innerHTML = product.count;
-        cell4.innerHTML = product_infos.price * product.count + "€";
+        cell4.innerHTML =
+            (parseFloat(product_infos.price) * product.count).toFixed(2) + "€";
 
         total_price += product_infos.price * product.count;
 
@@ -78,5 +79,5 @@ window.addEventListener("load", async function () {
     }
 
     let total_price_element = document.getElementById("total-price");
-    total_price_element.innerHTML = "Total: " + total_price + "€";
+    total_price_element.innerHTML = "Total: " + total_price.toFixed(2) + "€";
 });
