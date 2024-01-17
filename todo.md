@@ -2,6 +2,7 @@
 
 -   [ ] Suchfunktion mit Filter
 -   [ ] Kategorien in Datenbank
+-   [ ] Search return all
 
 # Frontend
 
