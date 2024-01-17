@@ -126,7 +126,7 @@ class Server():
         
         database_response = dataBase.select_data(cursor, "products", "count(*)")
         
-        return database_response[0][0]
+        return flask.jsonify(database_response[0][0])
     
     
     ################################################################

@@ -911,7 +911,7 @@ class TestFlaskServer(unittest.TestCase):
         #print(response.data)
         try:
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.data, b'{"number_of_products":5}\n')
+            self.assertEqual(response.data, b'5\n')
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
@@ -922,7 +922,7 @@ class TestFlaskServer(unittest.TestCase):
         #print(response.data)
         try:
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.data, b'{"number_of_products":0}\n')
+            self.assertEqual(response.data, b'0\n')
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
