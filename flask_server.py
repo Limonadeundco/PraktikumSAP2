@@ -510,10 +510,15 @@ class Server():
         
         _, cursor = dataBase.connect_database("database.db")
         
-        database_response = dataBase.select_data(cursor, "products", "*", f"name LIKE '%{search_term}%'")
+        # Replace spaces with underscores and convert to lowercase
+        search_term = search_term.replace(' ', '_').lower()
+        
+        # Use the LOWER function in the SQL query to make the search case insensitive
+        # Search in both the name and description fields
+        database_response = dataBase.select_data(cursor, "products", "*", f"(LOWER(name) LIKE '%{search_term}%' OR LOWER(description) LIKE '%{search_term}%')")
         
         if database_response == []:
-            return flask.Response("No products found", status=404)
+            return flask.Response("No products found", status=299)
         
         products = []
         for product in database_response:

@@ -1033,7 +1033,7 @@ class TestFlaskServer(unittest.TestCase):
         response = self.app.get("/search/invalid_id")
         #print(response.data)
         try:
-            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.status_code, 299)
             self.assertEqual(response.data, b'No products found')
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
@@ -1051,7 +1051,7 @@ class TestFlaskServer(unittest.TestCase):
         response = self.app.get("/search/testadata")
         #print(response.data)
         try:
-            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.status_code, 299)
             self.assertEqual(response.data, b'No products found')
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
