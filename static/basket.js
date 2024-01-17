@@ -49,7 +49,10 @@ window.addEventListener("load", async function () {
 
     console.log(basket_products);
 
+    var total_price = 0;
+
     let basket_table = document.getElementById("basket-table");
+    basket_table = basket_table.getElementsByTagName("tbody")[0];
     for (let i = 0; i < basket_products.length; i++) {
         let product = basket_products[i].product;
         console.log(product);
@@ -61,12 +64,19 @@ window.addEventListener("load", async function () {
         let cell1 = row.insertCell(0);
         let cell2 = row.insertCell(1);
         let cell3 = row.insertCell(2);
+        let cell4 = row.insertCell(3);
 
         cell1.innerHTML = product_infos.name;
-        cell2.innerHTML = product.count;
-        cell3.innerHTML = product_infos.price + "€";
+        cell2.innerHTML = product_infos.price + "€";
+        cell3.innerHTML = product.count;
+        cell4.innerHTML = product_infos.price * product.count + "€";
+
+        total_price += product_infos.price * product.count;
 
         console.log(product.product_id);
         console.log(product.count);
     }
+
+    let total_price_element = document.getElementById("total-price");
+    total_price_element.innerHTML = "Total: " + total_price + "€";
 });

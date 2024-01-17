@@ -6,27 +6,24 @@ body {
     z-index: 0;
 }
 
+/* Header style */
 header {
     background-color: #000000;
     box-shadow: 0 6px 12px 0 rgba(0, 0, 0, 0.4);
     align-items: center;
+    overflow: auto;
 }
 
 nav {
-    z-index: 100;
-    background-color: #000000;
-    overflow: auto;
-    box-shadow: 0 6px 12px 0 rgba(0, 0, 0, 0.4);
+    display: flex;
     align-items: center;
+    justify-content: start;
 }
 
 nav img {
-    height: 5vh;
-    width: 5vh;
-    margin-left: 2vw;
-    margin-top: 3vh;
-    align-self: center;
-    background-color: aqua;
+    height: 7.5vh;
+    width: 7.5vh;
+    margin-left: 1vw;
 }
 
 nav ul {
@@ -39,12 +36,13 @@ nav ul {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-grow: 1;
 }
 
 nav ul li a {
     color: limegreen;
     text-decoration: none;
-    font-size: 25px;
+    font-size: 1.75vw;
     font-weight: bold;
     align-self: center;
 }

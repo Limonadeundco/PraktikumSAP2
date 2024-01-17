@@ -13,8 +13,24 @@
         <viewport content="width=device-width, initial-scale=1.0" />
     </head>
     <body>
-        <h1>Webshop Basket</h1>
-        <table>
+        <header>
+            <nav>
+                <img
+                    class="logo"
+                    src="http://127.0.0.1:5000/get_image/utility/logo.png"
+                    alt="Logo"
+                />
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="#">Produkte</a></li>
+                    <li><a href="#">Kontakt</a></li>
+                    <li><a href="/basket">Warenkorb</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <h1>Dein Warenkorb</h1>
+        <table id="basket-table">
             <thead>
                 <tr>
                     <th>Product</th>
@@ -24,12 +40,13 @@
                 </tr>
             </thead>
             <tbody>
-                <table id="basket-table">
-                    <!-- basket products inserted here -->
-                </table>
+                <!-- basket products inserted here -->
             </tbody>
         </table>
-        <p>Total:</p>
+        <p id="total-price">Total:</p>
+
+        <form action="/checkout" method="POST">
+            <input type="submit" value="Jetzt bezahlen!" />
 
         <script src="{{url_for('static', filename='basket.js')}}"></script>
     </body>
