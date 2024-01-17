@@ -78,29 +78,42 @@ async function addProductToCart(product_id) {
 }
 
 window.addEventListener("load", async function () {
-    // Wrap the code inside an async function
-    // Check for user cookie
+    let recommended_elements = 2;
+    let recommended_products = await httpGetJson(
+        "http://127.0.0.1:5000/get_recommended_products/" + recommended_elements
+    );
+
+    // Check if the user has a cookie, if not, create one
     checkForUserCookie();
 
     // Get the recommended products and put them on the main page
-    for (let i = 0; i < 2; i++) {
-        let recommended_products = document.getElementsByClassName(
-            "recommended-product-" + (i + 1)
-        );
+    for (let i = 0; i < recommended_products.length; i++) {
+        let recommended_products = document.createElement("div");
+        recommended_products.classList.add("recommended-product");
 
-        let product_name =
-            recommended_products[0].getElementsByClassName("name")[0];
-        let product_description =
-            recommended_products[0].getElementsByClassName("description")[0];
+        let product_image = document.createElement("img");
+        product_image.classList.add("product-image");
+        product_image.src = "http://127.0.0.1:5000/get_image/" + (i + 1);
 
+        let product_name = document.createElement("h3");
+        product_name.classList.add("name");
+
+        let product_description = document.createElement("p");
+        product_description.classList.add("description");
+
+        let recommended_product_id = recommended_products[i].product_id;
         httpGetJson(
-            "http://127.0.0.1:5000/get_product/" + (i + 1) + "/name"
+            "http://127.0.0.1:5000/get_product/" +
+                recommended_product_id +
+                "/name"
         ).then((response) => {
             product_name.textContent = response[0][0]; // Access the first element of the first array
         });
 
         httpGetJson(
-            "http://127.0.0.1:5000/get_product/" + (i + 1) + "/description"
+            "http://127.0.0.1:5000/get_product/" +
+                recommended_product_id +
+                "/description"
         ).then((response) => {
             product_description.textContent = response[0][0]; // Access the first element of the first array
         });
