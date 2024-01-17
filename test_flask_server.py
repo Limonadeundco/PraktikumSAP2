@@ -755,7 +755,40 @@ class TestFlaskServer(unittest.TestCase):
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
-    
+        
+    def test_check_cookie(self):
+        response = self.app.get("/get_cookie")
+        try:
+            self.assertEqual(response.status_code, 200)
+            data = response.get_json()
+            user_id = data['user_id']
+            
+            self.cursor.execute("SELECT * FROM cookies WHERE cookie_id = ?", (user_id,))
+            row = self.cursor.fetchone()
+            self.assertIsNotNone(row)
+            
+            self.assertEqual(len(user_id), 36)
+            self.assertEqual(response.content_type, 'application/json')
+            
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        response = self.app.get("/check_cookie/" + user_id)
+        try:
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data, b"Cookie found")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        response = self.app.get("/check_cookie/invalid_id")
+        try:
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.data, b"Cookie not found")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
     
     
     def tearDown(self):
