@@ -79,27 +79,39 @@ async function addProductToCart(product_id) {
 
 window.addEventListener("load", async function () {
     let recommended_elements = 2;
+
+    // Get the recommended products
     let recommended_products = await httpGetJson(
         "http://127.0.0.1:5000/get_recommended_products/" + recommended_elements
     );
+    recommended_products = recommended_products.recommended_products;
 
     // Check if the user has a cookie, if not, create one
     checkForUserCookie();
 
     // Get the recommended products and put them on the main page
     for (let i = 0; i < recommended_products.length; i++) {
-        let recommended_products = document.createElement("div");
-        recommended_products.classList.add("recommended-product");
+        let product_container = document.getElementById(
+            "recommended-product-container"
+        );
+
+        //create div in the product-container
+        let recommended_product = document.createElement("div");
+        recommended_product.classList.add("recommended-product");
+        product_container.appendChild(recommended_product);
 
         let product_image = document.createElement("img");
         product_image.classList.add("product-image");
         product_image.src = "http://127.0.0.1:5000/get_image/" + (i + 1);
+        product_container.appendChild(product_image);
 
         let product_name = document.createElement("h3");
         product_name.classList.add("name");
+        product_container.appendChild(product_name);
 
         let product_description = document.createElement("p");
         product_description.classList.add("description");
+        product_container.appendChild(product_description);
 
         let recommended_product_id = recommended_products[i].product_id;
         httpGetJson(

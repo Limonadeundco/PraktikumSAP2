@@ -26,7 +26,7 @@ class Server():
         dataBase.drop_table(connection, cursor, "baskets")
         
         dataBase.create_table(connection, cursor, "products", "id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, description TEXT, count INTEGER, sales INTEGER")
-        dataBase.create_table(connection, cursor, "sales", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, date TEXT, count INTEGER")
+        dataBase.create_table(connection, cursor, "sales", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, sale_time TEXT, count INTEGER")
         dataBase.create_table(connection, cursor, "recommended_products", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, sales_last_day INTEGER")
         dataBase.create_table(connection, cursor, "images", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, image_id INTEGER, image_path TEXT")
         dataBase.create_table(connection, cursor, "baskets", "id INTEGER PRIMARY KEY AUTOINCREMENT, user_id, product_id INTEGER, count INTEGER")
