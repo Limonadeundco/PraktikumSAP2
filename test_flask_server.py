@@ -984,7 +984,63 @@ class TestFlaskServer(unittest.TestCase):
             self.fail("Unexpected response data:" + str(response.data))
             raise
         
+    def test_search(self):
+        database_commands.DataBase().clear_table(self.conn, self.cursor, "products")
         
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data", 1.0, "test_data_desc", 1))
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data4", 1.0, "test_data_desc4", 4))
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data2", 1.0, "test_data_desc2", 2))
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data3", 1.0, "test_data_desc3", 3))
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data5", 1.0, "test_data_desc5", 5))
+        
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 1, price = 1.0, name = 'test_data', description = 'test_data_desc'", "id = 1")
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 4, price = 1.0, name = 'test_data4', description = 'test_data_desc4'", "id = 2")
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 2, price = 1.0, name = 'test_data2', description = 'test_data_desc2'", "id = 3")
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 3, price = 1.0, name = 'test_data3', description = 'test_data_desc3'", "id = 4")
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 5, price = 1.0, name = 'test_data5', description = 'test_data_desc5'", "id = 5")
+        
+        response = self.app.get("/search/test_data")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data, b'{"products":[{"count":1,"description":"test_data_desc","id":1,"name":"test_data","price":1.0},{"count":4,"description":"test_data_desc4","id":2,"name":"test_data4","price":1.0},{"count":2,"description":"test_data_desc2","id":3,"name":"test_data2","price":1.0},{"count":3,"description":"test_data_desc3","id":4,"name":"test_data3","price":1.0},{"count":5,"description":"test_data_desc5","id":5,"name":"test_data5","price":1.0}]}\n')
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        response = self.app.get("/search/test_data4")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data, b'{"products":[{"count":4,"description":"test_data_desc4","id":2,"name":"test_data4","price":1.0}]}\n')
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        response = self.app.get("/search/test_data2")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data, b'{"products":[{"count":2,"description":"test_data_desc2","id":3,"name":"test_data2","price":1.0}]}\n')
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+    
+    """    @app.route("/search/<search_term>", methods=["GET"])
+    def search(search_term):
+        _, cursor = dataBase.connect_database("database.db")
+        
+        database_response = dataBase.select_data(cursor, "products", "*", f"name LIKE '%{search_term}%'")
+        
+        if database_response == []:
+            return flask.Response("No products found", status=404)
+        
+        products = []
+        for product in database_response:
+            products.append({"id": product[0], "name": product[1], "price": product[2], "description": product[3], "count": product[4]})
+        
+        return flask.jsonify(products=products)
+"""
     
     def tearDown(self):
         self.app = None
