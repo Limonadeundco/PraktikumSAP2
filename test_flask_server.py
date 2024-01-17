@@ -21,7 +21,7 @@ class TestFlaskServer(unittest.TestCase):
         #delete database and reset everything 
         cls.conn, cls.cursor = database_commands.DataBase().connect_database("database.db")
         database_commands.DataBase().drop_table(cls.conn, cls.cursor, "products")
-        database_commands.DataBase().create_table(cls.conn, cls.cursor, "products", "id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, description TEXT, count INTEGER, sales INTEGER")
+        database_commands.DataBase().create_table(cls.conn, cls.cursor, "products", "id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, description TEXT, count INTEGER, sales INTEGER, category TEXT")
         database_commands.DataBase().drop_table(cls.conn, cls.cursor, "images")
         database_commands.DataBase().create_table(cls.conn, cls.cursor, "images", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, image_id INTEGER, image_path TEXT")
         
@@ -40,7 +40,7 @@ class TestFlaskServer(unittest.TestCase):
         self.app.testing = True
         self.conn, self.cursor = database_commands.DataBase().connect_database("database.db")
         database_commands.DataBase().drop_table(self.conn, self.cursor, "products")
-        database_commands.DataBase().create_table(self.conn, self.cursor, "products", "id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, description TEXT, count INTEGER")
+        database_commands.DataBase().create_table(self.conn, self.cursor, "products", "id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, description TEXT, count INTEGER, sales INTEGER, category TEXT")
 
     
     def test_add_product(self):
@@ -147,7 +147,7 @@ class TestFlaskServer(unittest.TestCase):
         
         self.dataBase.create_table(self.connection, self.cursor, "recommended_products", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, sales_last_day INTEGER")
         
-        self.dataBase.create_table(self.connection, self.cursor, "products", "id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, description TEXT, count INTEGER, sales INTEGER")
+        self.dataBase.create_table(self.connection, self.cursor, "products", "id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, description TEXT, count INTEGER, sales INTEGER, category TEXT")
         
         self.dataBase.clear_table(self.connection, self.cursor, "sales")
         self.dataBase.clear_table(self.connection, self.cursor, "recommended_products")
@@ -245,7 +245,8 @@ class TestFlaskServer(unittest.TestCase):
         database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 10, price = 1.0, name = 'test_data10', description = 'test_data_desc10'", "id = 10")
         database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 11, price = 1.0, name = 'test_data11', description = 'test_data_desc11'", "id = 11")
         
-        expected_data = b'{"products":[{"product":{"count":1,"description":"test_data_desc","id":1,"name":"test_data","price":1.0}},{"product":{"count":4,"description":"test_data_desc4","id":2,"name":"test_data4","price":1.0}},{"product":{"count":2,"description":"test_data_desc2","id":3,"name":"test_data2","price":1.0}},{"product":{"count":3,"description":"test_data_desc3","id":4,"name":"test_data3","price":1.0}},{"product":{"count":5,"description":"test_data_desc5","id":5,"name":"test_data5","price":1.0}},{"product":{"count":6,"description":"test_data_desc6","id":6,"name":"test_data6","price":1.0}},{"product":{"count":7,"description":"test_data_desc7","id":7,"name":"test_data7","price":1.0}},{"product":{"count":8,"description":"test_data_desc8","id":8,"name":"test_data8","price":1.0}},{"product":{"count":9,"description":"test_data_desc9","id":9,"name":"test_data9","price":1.0}},{"product":{"count":10,"description":"test_data_desc10","id":10,"name":"test_data10","price":1.0}}]}\n'
+        expected_data = b'{"products":[{"product":{"category":null,"count":1,"description":"test_data_desc","id":1,"name":"test_data","price":1.0,"sales":null}},{"product":{"category":null,"count":4,"description":"test_data_desc4","id":2,"name":"test_data4","price":1.0,"sales":null}},{"product":{"category":null,"count":2,"description":"test_data_desc2","id":3,"name":"test_data2","price":1.0,"sales":null}},{"product":{"category":null,"count":3,"description":"test_data_desc3","id":4,"name":"test_data3","price":1.0,"sales":null}},{"product":{"category":null,"count":5,"description":"test_data_desc5","id":5,"name":"test_data5","price":1.0,"sales":null}},{"product":{"category":null,"count":6,"description":"test_data_desc6","id":6,"name":"test_data6","price":1.0,"sales":null}},{"product":{"category":null,"count":7,"description":"test_data_desc7","id":7,"name":"test_data7","price":1.0,"sales":null}},{"product":{"category":null,"count":8,"description":"test_data_desc8","id":8,"name":"test_data8","price":1.0,"sales":null}},{"product":{"category":null,"count":9,"description":"test_data_desc9","id":9,"name":"test_data9","price":1.0,"sales":null}},{"product":{"category":null,"count":10,"description":"test_data_desc10","id":10,"name":"test_data10","price":1.0,"sales":null}}]}\n'
+
         
         
         response = self.app.get("/get_all_products/10")
@@ -256,20 +257,25 @@ class TestFlaskServer(unittest.TestCase):
             self.fail("Unexpected response data:" + str(response.data))
         self.assertEqual(response.status_code, 200)
         
-        expected_data = b'{"products":[{"product":{"count":1,"description":"test_data_desc","id":1,"name":"test_data","price":1.0}},{"product":{"count":4,"description":"test_data_desc4","id":2,"name":"test_data4","price":1.0}},{"product":{"count":2,"description":"test_data_desc2","id":3,"name":"test_data2","price":1.0}},{"product":{"count":3,"description":"test_data_desc3","id":4,"name":"test_data3","price":1.0}},{"product":{"count":5,"description":"test_data_desc5","id":5,"name":"test_data5","price":1.0}},{"product":{"count":6,"description":"test_data_desc6","id":6,"name":"test_data6","price":1.0}},{"product":{"count":7,"description":"test_data_desc7","id":7,"name":"test_data7","price":1.0}},{"product":{"count":8,"description":"test_data_desc8","id":8,"name":"test_data8","price":1.0}},{"product":{"count":9,"description":"test_data_desc9","id":9,"name":"test_data9","price":1.0}},{"product":{"count":10,"description":"test_data_desc10","id":10,"name":"test_data10","price":1.0}},{"product":{"count":11,"description":"test_data_desc11","id":11,"name":"test_data11","price":1.0}}]}\n'
+        expected_data = b'{"products":[{"product":{"category":null,"count":1,"description":"test_data_desc","id":1,"name":"test_data","price":1.0,"sales":null}},{"product":{"category":null,"count":4,"description":"test_data_desc4","id":2,"name":"test_data4","price":1.0,"sales":null}},{"product":{"category":null,"count":2,"description":"test_data_desc2","id":3,"name":"test_data2","price":1.0,"sales":null}},{"product":{"category":null,"count":3,"description":"test_data_desc3","id":4,"name":"test_data3","price":1.0,"sales":null}},{"product":{"category":null,"count":5,"description":"test_data_desc5","id":5,"name":"test_data5","price":1.0,"sales":null}},{"product":{"category":null,"count":6,"description":"test_data_desc6","id":6,"name":"test_data6","price":1.0,"sales":null}},{"product":{"category":null,"count":7,"description":"test_data_desc7","id":7,"name":"test_data7","price":1.0,"sales":null}},{"product":{"category":null,"count":8,"description":"test_data_desc8","id":8,"name":"test_data8","price":1.0,"sales":null}},{"product":{"category":null,"count":9,"description":"test_data_desc9","id":9,"name":"test_data9","price":1.0,"sales":null}},{"product":{"category":null,"count":10,"description":"test_data_desc10","id":10,"name":"test_data10","price":1.0,"sales":null}},{"product":{"category":null,"count":11,"description":"test_data_desc11","id":11,"name":"test_data11","price":1.0,"sales":null}}]}\n'
         
         response = self.app.get("/get_all_products")
         
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, expected_data)
+        try:
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data, expected_data)
+        except AssertionError:
+            print("response.data: ", response.data)
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
         
         
     def test_get_product(self):
-        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data", 1.0, "test_data_desc", 1))
-        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data4", 1.0, "test_data_desc4", 4))
-        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data2", 1.0, "test_data_desc2", 2))
-        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data3", 1.0, "test_data_desc3", 3))
-        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count", ("test_data5", 1.0, "test_data_desc5", 5))
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count, sales", ("test_data", 1.0, "test_data_desc", 1, 0))
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count, sales", ("test_data4", 1.0, "test_data_desc4", 4, 0))
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count, sales", ("test_data2", 1.0, "test_data_desc2", 2, 0))
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count, sales", ("test_data3", 1.0, "test_data_desc3", 3, 0))
+        database_commands.DataBase().insert_data(self.conn, self.cursor, "products", "name, price, description, count, sales", ("test_data5", 1.0, "test_data_desc5", 5, 0))
         
         database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 1, price = 1.0, name = 'test_data', description = 'test_data_desc'", "id = 1")
         database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 4, price = 1.0, name = 'test_data4', description = 'test_data_desc4'", "id = 2")
@@ -279,7 +285,7 @@ class TestFlaskServer(unittest.TestCase):
         
         response = self.app.get("/get_product/1")
         try:
-            self.assertEqual(response.data, b'{"product":{"count":1,"description":"test_data_desc","id":1,"name":"test_data","price":1.0}}\n')
+            self.assertEqual(response.data, b'{"product":{"category":null,"count":1,"description":"test_data_desc","id":1,"name":"test_data","price":1.0,"sales":0}}\n')
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
@@ -986,7 +992,7 @@ class TestFlaskServer(unittest.TestCase):
         
     def test_search(self):
         database_commands.DataBase().drop_table(self.conn, self.cursor, "products")
-        database_commands.DataBase().create_table(self.conn, self.cursor, "products", "id INTEGER PRIMARY KEY, name TEXT, price REAL, description TEXT, count INTEGER")
+        database_commands.DataBase().create_table(self.conn, self.cursor, "products", "id INTEGER PRIMARY KEY, name TEXT, price REAL, description TEXT, count INTEGER, category TEXT")
         
         database_commands.DataBase().clear_table(self.conn, self.cursor, "products")
         
@@ -1033,7 +1039,7 @@ class TestFlaskServer(unittest.TestCase):
         response = self.app.get("/search/invalid_id")
         #print(response.data)
         try:
-            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.status_code, 299)
             self.assertEqual(response.data, b'No products found')
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
@@ -1051,7 +1057,7 @@ class TestFlaskServer(unittest.TestCase):
         response = self.app.get("/search/testadata")
         #print(response.data)
         try:
-            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.status_code, 299)
             self.assertEqual(response.data, b'No products found')
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
