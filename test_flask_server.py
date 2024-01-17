@@ -756,11 +756,39 @@ class TestFlaskServer(unittest.TestCase):
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
-
-        # New test
+        
+        response = self.app.get("/get_cookie")
+        try:
+            self.assertEqual(response.status_code, 200)
+            data = response.get_json()
+            user_id2 = data['user_id']
+            
+            self.cursor.execute("SELECT * FROM cookies WHERE cookie_id = ?", (user_id2,))
+            row = self.cursor.fetchone()
+            self.assertIsNotNone(row)
+            
+            self.assertEqual(len(user_id2), 36)
+            self.assertEqual(response.content_type, 'application/json')
+            
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        
+        user_id = str(uuid.uuid4())
+        
+        dataBase.insert_data(self.conn, self.cursor, "cookies", "cookie_id", (user_id,))
+        
+        response = self.app.get("/get_cookie/" + user_id)
+        try:
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.data, b"Cookie already exists")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
         # Manually insert a UUID into the database
         user_id = str(uuid.uuid4())
-        dataBase.insert_data(self.conn, self.cursor, "cookies", "cookie_id", (user_id,))
 
         # First request to the endpoint should be successful
         response = self.app.get(f"/get_cookie/{user_id}")
@@ -770,8 +798,7 @@ class TestFlaskServer(unittest.TestCase):
 
         # Second request to the endpoint with the same UUID should return 404
         response = self.app.get(f"/get_cookie/{user_id}")
-        self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.get_data(as_text=True), "Cookie already exists")
+        self.assertEqual(response.status_code, 200)
         
         # Manually insert a UUID into the database
         user_id = str(uuid.uuid4())
