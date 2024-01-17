@@ -1,0 +1,33 @@
+<!-- FILEPATH: /C:/Users/Felix/OneDrive - Helmholtz-Gymnasium/Desktop/GitHub/PraktikumSAP2/templates/basket.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Webshop Basket</title>
+</head>
+<body>
+    <h1>Webshop Basket</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Loop through the products in the basket -->
+            {% for product in basket.products %}
+            <tr>
+                <td>{{ product.name }}</td>
+                <td>{{ product.price }}</td>
+                <td>{{ product.quantity }}</td>
+                <td>{{ product.price * product.quantity }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p>Total: {{ basket.total }}</p>
+</body>
+</html>

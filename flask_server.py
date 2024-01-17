@@ -18,16 +18,16 @@ int_colums = ["price", "count"]
 class Server():
     def __init__(self):
         connection, cursor = dataBase.connect_database("database.db")
+        dataBase.drop_table(connection, cursor, "products")
+        dataBase.drop_table(connection, cursor, "sales")
+        dataBase.drop_table(connection, cursor, "recommended_products")
+        dataBase.drop_table(connection, cursor, "images")
         
         dataBase.create_table(connection, cursor, "products", "id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, description TEXT, count INTEGER, sales INTEGER")
         dataBase.create_table(connection, cursor, "sales", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, date TEXT, count INTEGER")
         dataBase.create_table(connection, cursor, "recommended_products", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, sales_last_day INTEGER")
         dataBase.create_table(connection, cursor, "images", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, image_id INTEGER, image_path TEXT")
-        
-        dataBase.clear_table(connection, cursor, "products")
-        dataBase.clear_table(connection, cursor, "sales")
-        dataBase.clear_table(connection, cursor, "recommended_products")
-        dataBase.clear_table(connection, cursor, "images")
+        dataBase.create_table(connection, cursor, "baskets", "id INTEGER PRIMARY KEY AUTOINCREMENT, user_id, product_id INTEGER, count INTEGER")
         
         dataBase.insert_data(connection, cursor, "products", "id, name, price, description, count, sales", (1, "Brot", 2.99, "Einfach leckeres Brot", 8, 0))
         dataBase.insert_data(connection, cursor, "products", "id, name, price, description, count, sales", (2, "Wasser", 0.99, "Einfach leckeres Wasser", 15, 0))
@@ -299,8 +299,22 @@ class Server():
             return flask.send_file(image_path, mimetype='image/png')
         except:
             return flask.Response("Image not found on disk", status=404)
+       
+       
+       
+    ################################################################
+    #                                                              #
+    #                         Basket                               #
+    #                                                              #
+    ################################################################     
+      
+      
         
-        
+    ################################################################
+    #                                                              #
+    #                         Websites                             #
+    #                                                              #
+    ################################################################     
     @app.route("/", methods=["GET"])
     def webstore():
         return flask.render_template("main_page.html")
