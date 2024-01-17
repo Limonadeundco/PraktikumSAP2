@@ -44,7 +44,7 @@ async function getProductsForBasketId(basket_id) {
 }
 
 window.addEventListener("load", async function () {
-    let basket_id = 1;
+    let basket_id = document.cookie;
     let basket_products = await getProductsForBasketId(basket_id);
 
     console.log(basket_products);
