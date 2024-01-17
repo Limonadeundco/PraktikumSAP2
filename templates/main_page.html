@@ -1,55 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Webstore</title>
-    <link
-    rel="stylesheet"
-    type="text/css"
-    href="{{ url_for('static', filename='main_page.css') }}"
-/>
-</head>
-<body>
-    <header>
-        <nav>
-            <img class="logo" src="http://127.0.0.1:5000/get_image/utility/logo.png" alt="Logo">
-            <ul>
-                <li><a href="#">Home</a></li>
-                <li><a href="#">Produkte</a></li>
-                <li><a href="#">Kontakt</a></li>
-                <li><a href="#">Warenkorb</a></li>
-            </ul>
-        </nav>
-    </header>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Webstore</title>
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="{{ url_for('static', filename='main_page.css') }}"
+        />
+    </head>
+    <body>
+        <header>
+            <nav>
+                <img
+                    class="logo"
+                    src="http://127.0.0.1:5000/get_image/utility/logo.png"
+                    alt="Logo"
+                />
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Produkte</a></li>
+                    <li><a href="#">Kontakt</a></li>
+                    <li><a href="#">Warenkorb</a></li>
+                </ul>
+            </nav>
+        </header>
 
-    <main>
-        <h1>Welcome to our Webstore!</h1>
+        <main>
+            <h1>Welcome to our Webstore!</h1>
 
-        <section>
-            <h2>Recommended Products</h2>
-            <div class="product-list">
-                <!-- Add your recommended products here -->
-                <div class="recommended-product-1">
-                    <img src="http://127.0.0.1:5000/get_image/1/1" alt="Recommended Product 1">
-                    <h3 class="name"></h3>
-                    <p class="description"></p>
-                    <button>Add to Cart</button>
+            <section>
+                <h2>Recommended Products</h2>
+                <div class="product-list">
+                    <!-- Add your recommended products here -->
+                    <div class="recommended-product-1">
+                        <img
+                            src="http://127.0.0.1:5000/get_image/1/1"
+                            alt="Recommended Product 1"
+                        />
+                        <h3 class="name"></h3>
+                        <p class="description"></p>
+                        <button>Add to Cart</button>
+                    </div>
+                    <div class="recommended-product-2">
+                        <img
+                            src="http://127.0.0.1:5000/get_image/2/1"
+                            alt="Recommended Product 2"
+                        />
+                        <h3 class="name"></h3>
+                        <p class="description"></p>
+                        <button>Add to Cart</button>
+                    </div>
                 </div>
-                <div class="recommended-product-2">
-                    <img src="http://127.0.0.1:5000/get_image/2/1" alt="Recommended Product 2">
-                    <h3 class="name"></h3>
-                    <p class="description"></p>
-                    <button>Add to Cart</button>
-                </div>
-            </div>
-        </section>
-    </main>
+            </section>
+        </main>
 
-    <footer>
-        <p>&copy; 2022 Webstore. All rights reserved.</p>
-    </footer>
+        <footer>
+            <p>&copy; 2022 Webstore. All rights reserved.</p>
+        </footer>
 
-    <script src="{{url_for('static', filename='main_page.js')}}"></script>
-</body>
+        <script src="{{url_for('static', filename='main_page.js')}}"></script>
+    </body>
 </html>
