@@ -92,11 +92,12 @@ async function addProductToCart(product_id, product_container) {
             method: "POST",
         }
     ).then((response) => {
-        if (!response.status == 400) {
+        if (response.status == 299) {
             let error_message = document.createElement("p");
             error_message.classList.add("error-message");
             error_message.textContent =
                 "Leider haben wir das Produkt so oft nicht auf Lager!";
+            product_container.appendChild(error_message);
         }
         return response.text();
     });
