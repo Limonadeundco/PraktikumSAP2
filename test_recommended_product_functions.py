@@ -7,6 +7,7 @@ from datetime import datetime
 
 current_year = datetime.now().year
 current_month = datetime.now().month
+current_day = datetime.now().day
 
 
 class TestRecommendedProductFunctions(unittest.TestCase):
@@ -61,7 +62,7 @@ class TestRecommendedProductFunctions(unittest.TestCase):
 
         self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (3, f"{current_year}-{current_month}-15 00:10:00", 1,))
         self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (4, f"{current_year}-{current_month}-15 00:40:00", 1,))
-        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (4, f"{current_year}-{current_month}-15 00:30:00", 1,))
+        self.dataBase.insert_data(self.connection, self.cursor, "sales", "product_id, sale_time, count", (4, f"{current_year}-{current_month}-{current_day} 00:30:00", 1,))
         
     def test_generate_recommended_products(self):
         self.recommended_product_functions.generate_recommended_products(self.connection, self.cursor, 5)
