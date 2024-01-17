@@ -401,6 +401,7 @@ class TestFlaskServer(unittest.TestCase):
             response = self.app.get("/get_image/utility/test_image.png")
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.content_type, 'image/png')
+            response.close()
 
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
