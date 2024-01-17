@@ -1,4 +1,47 @@
+async function httpGetJson(url) {
+    return fetch(url)
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .catch((e) => {
+            console.log(
+                "There was a problem with your fetch operation: " + e.message
+            );
+        });
+}
+
+async function httpGetText(url) {
+    return fetch(url)
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text();
+        })
+        .catch((e) => {
+            console.log(
+                "There was a problem with your fetch operation: " + e.message
+            );
+        });
+}
+
+function checkForUserCookie() {
+    let user_cookie = document.cookie.split(";").filter((item) => {
+        return item.includes("user");
+    });
+
+    if (user_cookie.length > 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 window.addEventListener("load", function () {
+
     for (let i = 0; i < 2; i++) {
         let recommended_products = document.getElementsByClassName(
             "recommended-product-" + (i + 1)
@@ -28,18 +71,3 @@ window.addEventListener("load", function () {
         });
     }
 });
-
-async function httpGetJson(url) {
-    return fetch(url)
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .catch((e) => {
-            console.log(
-                "There was a problem with your fetch operation: " + e.message
-            );
-        });
-}
