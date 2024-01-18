@@ -172,15 +172,26 @@ for i in range(num_pictures):
     
     #generate 50 funny descriptions for the products
     
-    adjectives = ["lustig", " albern", "verrueckt", "hilarisch", "laecherlich", "albern", "verrueckt", "skurril", "komisch", "absurd"]
-    nouns = ["Katze", "Hund", "Elefant", "Clown", "Banane", "Alien", "Huhn", "Roboter", "Pirat", "Ninja"]
+    adjectives = ["lustig", "albern", "verrueckt", "hilarisch", "laecherlich", "albern", "verrueckt", "skurril", "komisch", "absurd", 
+                  "grotesk", "bizarr", "seltsam", "unheimlich", "merkwuerdig", "sonderbar", "kurios", "eigenartig", "ungewoehnlich", 
+                  "absonderlich", "fremdartig", "exzentrisch", "wunderlich", "schrullig", "spassig", "ulkig", "witzig", "scherzhaft", 
+                  "humorvoll", "amuesant", "unterhaltsam", "lustig", "heiter", "froehlich", "vergnuegt", "gluecklich", "zufrieden", 
+                  "befriedigt", "erfreut", "begeistert", "entzueckt", "hocherfreut", "uebergluecklich"]
+    nouns = ["Katze", "Hund", "Elefant", "Clown", "Banane", "Alien", "Huhn", "Roboter", "Pirat", "Ninja", 
+             "Auto", "Baum", "Stuhl", "Buch", "Tisch", "Haus", "Schuh", "Schlüssel", "Lampe", "Computer", 
+             "Fenster", "Tür", "Bild", "Uhr", "Telefon", "Brille", "Kugelschreiber", "Tasse", "Teller", "Löffel"]
 
     descriptions = []
 
     for _ in range(50):
         adjective = random.choice(adjectives)
         noun = random.choice(nouns)
-        descriptions.append(f"{adjective} {noun}")
+        descriptions.append(f"{adjective} {noun}.")
+        
+    for _ in range(50):
+        adjective = random.choice(adjectives)
+        noun = random.choice(nouns)
+        descriptions.append(f"{adjective} {noun}.")
 
     which_description = random.randint(0, 49)
 

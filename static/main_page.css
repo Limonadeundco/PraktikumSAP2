@@ -33,14 +33,16 @@ nav img {
 nav ul {
     background-color: #000000;
     list-style-type: none;
-    padding-top: 3vh;
-    padding-bottom: 3vh;
+    padding-top: 4vh;
+    padding-bottom: 4vh;
     margin-left: 2vw;
     margin-right: 8vw;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-grow: 1;
+    margin-bottom: 0;
+    margin-top: 0;
 }
 
 nav ul li a {

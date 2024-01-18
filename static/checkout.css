@@ -4,12 +4,16 @@ header {
     box-shadow: 0 6px 12px 0 rgba(0, 0, 0, 0.4);
     align-items: center;
     overflow: auto;
+    position: sticky;
+    top: 0; /* Add this line to make the header sticky */
 }
 
 nav {
     display: flex;
     align-items: center;
     justify-content: start;
+    position: sticky;
+    top: 0; /* Add this line to make the nav bar sticky */
 }
 
 nav img {
@@ -21,14 +25,16 @@ nav img {
 nav ul {
     background-color: #000000;
     list-style-type: none;
-    padding-top: 3vh;
-    padding-bottom: 3vh;
+    padding-top: 4vh;
+    padding-bottom: 4vh;
     margin-left: 2vw;
     margin-right: 8vw;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-grow: 1;
+    margin-bottom: 0;
+    margin-top: 0;
 }
 
 nav ul li a {

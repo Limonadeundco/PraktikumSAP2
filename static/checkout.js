@@ -5,14 +5,15 @@ window.addEventListener("load", function () {
 });
 
 async function onPayButton() {
+    window.location.href = "/";
+
     user_id = document.cookie;
     let response = await fetch("http://127.0.0.1:5000/payment/" + user_id, {
         method: "POST",
     }).then((response) => {
         if (!response.ok) {
-            throw new Error(`HTTP error! message: ${response.json()}`);
+            console.log(`HTTP error! message: ${response.json()}`);
         }
-        return response.json();
     });
 
     let status_element = document.getElementById("status");
