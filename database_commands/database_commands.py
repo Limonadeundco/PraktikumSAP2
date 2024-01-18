@@ -60,3 +60,9 @@ class DataBase():
     def clear_table(self, connection, cursor, table):
         cursor.execute("DELETE FROM " + table)
         connection.commit()
+    
+    def delete_all_data(self, connection, cursor, table, condition):
+        cursor.execute("DELETE FROM " + table + " WHERE " + condition)
+        connection.commit()
+        
+        

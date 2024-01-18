@@ -44,6 +44,46 @@ async function getImportantData() {
     return { productCount: product_count[0][0], allProducts: get_all_products };
 }
 
+async function addProductToCart(product_id, product_container) {
+    let inputs = document.getElementsByClassName("product-quantity");
+    let quantity = inputs[product_id - 1].value;
+
+    if (quantity < 1) {
+        displayErrorMessage(
+            "Ungülitge Anzahl, bitte mindestens 1 Produkt auswählen!",
+            product_container
+        );
+        return;
+    }
+
+    console.log("Adding product " + product_id + " " + quantity + "x to cart");
+    let user_cookie = document.cookie;
+    fetch(
+        "http://127.0.0.1:5000/add_product_to_basket/" +
+            user_cookie +
+            "/" +
+            product_id +
+            "/" +
+            quantity,
+        {
+            method: "POST",
+        }
+    ).then((response) => {
+        if (response.status == 299) {
+            displayErrorMessage(
+                "Nicht genügend Produkte auf Lager!",
+                product_container
+            );
+        } else if (response.status == 200) {
+            displayErrorMessage(
+                "Produkt erfolgreich in den Warenkorb gelegt!",
+                product_container
+            );
+        }
+        return;
+    });
+}
+
 async function generateTable(initData, tableData) {
     let table = document.getElementById("products");
     let table_body = table.getElementsByTagName("tbody")[0];
@@ -103,10 +143,64 @@ async function generateTable(initData, tableData) {
             product_description.classList.add("product-description");
             product_container.appendChild(product_description);
 
+            // create add to cart button
+            let add_to_cart_button = document.createElement("button");
+            add_to_cart_button.classList.add("add-to-cart-button");
+            add_to_cart_button.textContent = "In den Warenkorb";
+            add_to_cart_button.onclick = function () {
+                addProductToCart(product.id, product_container);
+            };
+            product_container.appendChild(add_to_cart_button);
+
+            // create quantity input
+            let product_quantity = document.createElement("input");
+            product_quantity.classList.add("product-quantity");
+            product_quantity.type = "number";
+            product_quantity.min = 1;
+            product_quantity.max = initData.productCount;
+            product_quantity.value = 1;
+            product_quantity.addEventListener("input", function () {
+                if (this.value > initData.productCount) {
+                    this.value = initData.productCount;
+                }
+            });
+            product_container.appendChild(product_quantity);
+
+            //create status message
+            let product_status = document.createElement("p");
+            product_status.classList.add("status", "fade-out");
+            product_status.textContent = "";
+            product_container.appendChild(product_status);
+
             row.appendChild(product_container);
         }
         table_body.appendChild(row);
     }
+}
+
+function displayErrorMessage(message, product_container) {
+    let error_message = product_container.getElementsByClassName("status")[0];
+    error_message.textContent = message;
+    error_message.classList.add("error-message");
+    error_message.classList.remove("fade-out");
+
+    // Start fading out the error message after 3 seconds
+    setTimeout(function () {
+        error_message.classList.add("fade-out");
+    }, 3000);
+}
+
+function displaySuccessMessage(message, product_container) {
+    let success_message =
+        product_container.getElementsByClassName("success-message")[0];
+    success_message.textContent = message;
+    success_message.classList.add("success-message");
+    success_message.classList.remove("fade-out");
+
+    // Start fading out the success message after 3 seconds
+    setTimeout(function () {
+        success_message.classList.add("fade-out");
+    }, 3000);
 }
 
 async function calculateTable(initData) {

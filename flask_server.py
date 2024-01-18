@@ -18,25 +18,25 @@ int_colums = ["price", "count"]
 class Server():
     def __init__(self):
         connection, cursor = dataBase.connect_database("database.db")
-        dataBase.drop_table(connection, cursor, "products")
+        #dataBase.drop_table(connection, cursor, "products")
         dataBase.drop_table(connection, cursor, "sales")
         dataBase.drop_table(connection, cursor, "recommended_products")
-        dataBase.drop_table(connection, cursor, "images")
+        #dataBase.drop_table(connection, cursor, "images")
         dataBase.drop_table(connection, cursor, "cookies")
         dataBase.drop_table(connection, cursor, "baskets")
         
-        dataBase.create_table(connection, cursor, "products", "id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, description TEXT, count INTEGER, sales INTEGER, category TEXT")
+        #dataBase.create_table(connection, cursor, "products", "id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, description TEXT, count INTEGER, sales INTEGER, category TEXT")
         dataBase.create_table(connection, cursor, "sales", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, sale_time TEXT, count INTEGER")
         dataBase.create_table(connection, cursor, "recommended_products", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, sales_last_day INTEGER")
-        dataBase.create_table(connection, cursor, "images", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, image_id INTEGER, image_path TEXT")
+        #dataBase.create_table(connection, cursor, "images", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, image_id INTEGER, image_path TEXT")
         dataBase.create_table(connection, cursor, "baskets", "id INTEGER PRIMARY KEY AUTOINCREMENT, user_id, product_id INTEGER, count INTEGER")
         dataBase.create_table(connection, cursor, "cookies", "id INTEGER PRIMARY KEY AUTOINCREMENT, cookie_id INTEGER")
         
-        dataBase.insert_data(connection, cursor, "products", "id, name, price, description, count, sales", (1, "Brot", 2.99, "Einfach leckeres Brot", 8, 0))
-        dataBase.insert_data(connection, cursor, "products", "id, name, price, description, count, sales", (2, "Wasser", 0.99, "Einfach leckeres Wasser", 15, 0))
+        #dataBase.insert_data(connection, cursor, "products", "id, name, price, description, count, sales", (1, "Brot", 2.99, "Einfach leckeres Brot", 8, 0))
+        #dataBase.insert_data(connection, cursor, "products", "id, name, price, description, count, sales", (2, "Wasser", 0.99, "Einfach leckeres Wasser", 15, 0))
         
-        dataBase.insert_data(connection, cursor, "images", "id, product_id, image_id, image_path", (1, 1, 1, "images/products/1/1.png"))
-        dataBase.insert_data(connection, cursor, "images", "id, product_id, image_id, image_path", (2, 2, 1, "images/products/2/1.png"))
+        #dataBase.insert_data(connection, cursor, "images", "id, product_id, image_id, image_path", (1, 1, 1, "images/products/1/1.png"))
+        #dataBase.insert_data(connection, cursor, "images", "id, product_id, image_id, image_path", (2, 2, 1, "images/products/2/1.png"))
         
         
     ################################################################
@@ -556,4 +556,4 @@ class Server():
 ################################################################    
 if __name__ == "__main__":
     Server = Server()
-    app.run(debug=True, port=5000)
+    app.run(debug=False, port=5000)

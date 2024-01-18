@@ -48,3 +48,71 @@ body {
     margin: 0;
     padding: 0;
 }
+
+#searchdiv {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+#search {
+    width: 50vw;
+    align-self: center;
+    display: flex;
+    text-align: center;
+    border-radius: 1vw;
+    height: 5vh;
+}
+
+table {
+    display: flex;
+    justify-content: space-evenly;
+    flex-direction: column;
+    align-items: center;
+    border-collapse: separate;
+    border-spacing: 1vw;
+}
+
+table tbody {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    flex-direction: column;
+    table-layout: fixed;
+}
+
+table thead {
+    align-items: center;
+    text-align: center;
+    align-self: center;
+}
+
+table thead tr {
+    align-self: center;
+    align-items: center;
+    text-align: center;
+    font-size: 5vh;
+}
+
+table tbody tr td img {
+    height: 15vh;
+    width: 15vh;
+    border-radius: 2vh;
+}
+
+table tbody tr td {
+    align-items: center;
+    text-align: center;
+    background-color: #666666;
+    border-radius: 4vh;
+    padding: 1vw;
+    width: calc(100% / 5);
+}
+
+table tbody tr {
+    background-color: aqua;
+    justify-content: space-between;
+    align-self: center;
+    align-items: center;
+    width: 100%;
+}

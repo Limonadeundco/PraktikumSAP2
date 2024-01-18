@@ -128,8 +128,14 @@ class TestDatabaseCommands(unittest.TestCase):
         self.assertIsNone(row, "Table was not cleared")
         self.DataBase.disconnect_database(self.conn)
         
+    def test_delete_all_data(self):
+        self.DataBase.insert_data(self.conn, self.cursor, "test", "test", ("test",))
+        self.DataBase.delete_all_data(self.conn, self.cursor, "test", "test='test'")
+        self.cursor.execute("SELECT * FROM test WHERE test='test'")
+        row = self.cursor.fetchone()
+        self.assertIsNone(row, "Data was not deleted")
+        self.DataBase.disconnect_database(self.conn)
         
-    
     
     
         
