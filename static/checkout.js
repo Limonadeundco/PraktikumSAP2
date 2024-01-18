@@ -1,6 +1,23 @@
 window.addEventListener("load", function () {
     checkForUserCookie();
+    var payButton = document.getElementById("pay");
+    payButton.addEventListener("click", onPayButton);
 });
+
+async function onPayButton() {
+    user_id = document.cookie;
+    let response = await fetch("http://127.0.0.1:5000/payment/" + user_id, {
+        method: "POST",
+    }).then((response) => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! message: ${response.json()}`);
+        }
+        return response.json();
+    });
+
+    let status_element = document.getElementById("status");
+    status_element.innerHTML = response.status;
+}
 
 async function checkForUserCookie() {
     let user_cookie = document.cookie;

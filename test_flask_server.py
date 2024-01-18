@@ -10,6 +10,7 @@ from io import BytesIO
 from flask_server import app, dataBase
 import time
 import uuid
+import json
 
 current_year = datetime.now().year
 current_month = datetime.now().month
@@ -24,6 +25,8 @@ class TestFlaskServer(unittest.TestCase):
         database_commands.DataBase().create_table(cls.conn, cls.cursor, "products", "id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, description TEXT, count INTEGER, sales INTEGER, category TEXT")
         database_commands.DataBase().drop_table(cls.conn, cls.cursor, "images")
         database_commands.DataBase().create_table(cls.conn, cls.cursor, "images", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, image_id INTEGER, image_path TEXT")
+        database_commands.DataBase().drop_table(cls.conn, cls.cursor, "sales")
+        database_commands.DataBase().create_table(cls.conn, cls.cursor, "sales", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, sale_time TEXT, count INTEGER, user_id TEXT")
         
     @classmethod
     def tearDownClass(cls):
@@ -143,7 +146,7 @@ class TestFlaskServer(unittest.TestCase):
         self.dataBase.drop_table(self.connection, self.cursor, "recommended_products")
         self.dataBase.drop_table(self.connection, self.cursor, "products")
         
-        self.dataBase.create_table(self.connection, self.cursor, "sales", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, sale_time TEXT, count INTEGER")
+        self.dataBase.create_table(self.connection, self.cursor, "sales", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, sale_time TEXT, count INTEGER, user_id TEXT")
         
         self.dataBase.create_table(self.connection, self.cursor, "recommended_products", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, sales_last_day INTEGER")
         
@@ -265,7 +268,7 @@ class TestFlaskServer(unittest.TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data, expected_data)
         except AssertionError:
-            print("response.data: ", response.data)
+            #print("response.data: ", response.data)
             self.fail("Unexpected response data:" + str(response.data))
             raise
         
@@ -848,11 +851,10 @@ class TestFlaskServer(unittest.TestCase):
         
         
     def test_get_cookie(self):
-        # Old test
         response = self.app.get("/get_cookie")
         try:
             self.assertEqual(response.status_code, 200)
-            data = response.get_json()
+            data = json.loads(response.data.decode('utf-8'))  # decode the byte string and parse it as JSON
             user_id = data['user_id']
             
             self.cursor.execute("SELECT * FROM cookies WHERE cookie_id = ?", (user_id,))
@@ -861,15 +863,15 @@ class TestFlaskServer(unittest.TestCase):
             
             self.assertEqual(len(user_id), 36)
             self.assertEqual(response.content_type, 'application/json')
-            
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
-        
+
+                
         response = self.app.get("/get_cookie")
         try:
             self.assertEqual(response.status_code, 200)
-            data = response.get_json()
+            data = json.loads(response.data.decode('utf-8'))  # decode the byte string and parse it as JSON
             user_id2 = data['user_id']
             
             self.cursor.execute("SELECT * FROM cookies WHERE cookie_id = ?", (user_id2,))
@@ -920,13 +922,14 @@ class TestFlaskServer(unittest.TestCase):
         response = self.app.get(f"/get_cookie/{user_id}")
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.get_data(as_text=True), "Cookie already exists")
-        
+            
     def test_check_cookie(self):
         response = self.app.get("/get_cookie")
         try:
             self.assertEqual(response.status_code, 200)
-            data = response.get_json()
-            user_id = data['user_id']
+            data = json.loads(response.data.decode('utf-8'))  # decode the byte string and parse it as JSON
+            #print("data: " + str(data))
+            user_id = data["user_id"]
             
             self.cursor.execute("SELECT * FROM cookies WHERE cookie_id = ?", (user_id,))
             row = self.cursor.fetchone()
@@ -934,7 +937,6 @@ class TestFlaskServer(unittest.TestCase):
             
             self.assertEqual(len(user_id), 36)
             self.assertEqual(response.content_type, 'application/json')
-            
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
@@ -974,7 +976,7 @@ class TestFlaskServer(unittest.TestCase):
         #print(response.data)
         try:
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.data, b'5\n')
+            self.assertEqual(response.data, b'[[5]]\n')
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
@@ -985,7 +987,7 @@ class TestFlaskServer(unittest.TestCase):
         #print(response.data)
         try:
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.data, b'0\n')
+            self.assertEqual(response.data, b'[[0]]\n')
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
@@ -1012,7 +1014,7 @@ class TestFlaskServer(unittest.TestCase):
         #print(response.data)
         try:
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.data, b'{"products":[{"count":1,"description":"test_data_desc","id":1,"name":"test_data","price":1.0},{"count":4,"description":"test_data_desc4","id":2,"name":"test_data4","price":1.0},{"count":2,"description":"test_data_desc2","id":3,"name":"test_data2","price":1.0},{"count":3,"description":"test_data_desc3","id":4,"name":"test_data3","price":1.0},{"count":5,"description":"test_data_desc5","id":5,"name":"test_data5","price":1.0}]}\n')
+            self.assertEqual(response.data, b'{"products":[{"product":{"count":1,"description":"test_data_desc","id":1,"name":"test_data","price":1.0}},{"product":{"count":4,"description":"test_data_desc4","id":2,"name":"test_data4","price":1.0}},{"product":{"count":2,"description":"test_data_desc2","id":3,"name":"test_data2","price":1.0}},{"product":{"count":3,"description":"test_data_desc3","id":4,"name":"test_data3","price":1.0}},{"product":{"count":5,"description":"test_data_desc5","id":5,"name":"test_data5","price":1.0}}]}\n')
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
@@ -1021,7 +1023,7 @@ class TestFlaskServer(unittest.TestCase):
         #print(response.data)
         try:
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.data, b'{"products":[{"count":4,"description":"test_data_desc4","id":2,"name":"test_data4","price":1.0}]}\n')
+            self.assertEqual(response.data, b'{"products":[{"product":{"count":4,"description":"test_data_desc4","id":2,"name":"test_data4","price":1.0}}]}\n')
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
@@ -1030,7 +1032,7 @@ class TestFlaskServer(unittest.TestCase):
         #print(response.data)
         try:
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.data, b'{"products":[{"count":2,"description":"test_data_desc2","id":3,"name":"test_data2","price":1.0}]}\n')
+            self.assertEqual(response.data, b'{"products":[{"product":{"count":2,"description":"test_data_desc2","id":3,"name":"test_data2","price":1.0}}]}\n')
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
@@ -1071,7 +1073,81 @@ class TestFlaskServer(unittest.TestCase):
         except AssertionError:
             self.fail("Unexpected response data:" + str(response.data))
             raise
+    
+    def test_payment(self):
+        database_commands.DataBase().clear_table(self.conn, self.cursor, "baskets")
+        database_commands.DataBase().clear_table(self.conn, self.cursor, "products")
+        database_commands.DataBase().clear_table(self.conn, self.cursor, "sqlite_sequence")
+    
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "products", "id, name, price, description, count", (1, "test_data", 1.0, "test_data_desc", 1))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "products", "id, name, price, description, count", (2, "test_data4", 1.0, "test_data_desc4", 4))
         
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 1, price = 1.0, name = 'test_data', description = 'test_data_desc'", "id = 1")
+        database_commands.DataBase().update_data(self.conn, self.cursor, "products", "count = 4, price = 1.0, name = 'test_data4', description = 'test_data_desc4'", "id = 2")
+        
+        database_commands.DataBase().delete_data(self.conn, self.cursor, "products", "id = 999")
+        
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (1, "1", 1, 1))
+        database_commands.DataBase().insert_data_at_specific_id(self.conn, self.cursor, "baskets", "id, user_id, product_id, count", (2, "1", 2, 4))
+        self.app.get("/get_cookie/1")
+        
+        response = self.app.post("/payment/1")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data, b"Payment successful")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        #check if the basket is empty with the database
+        self.cursor.execute("SELECT * FROM baskets WHERE user_id = 1")
+        row = self.cursor.fetchone()
+        self.assertIsNone(row)
+        
+        #check if the count of the products is decreased
+        self.cursor.execute("SELECT count FROM products WHERE id = 1")
+        row = self.cursor.fetchone()
+        self.assertEqual(row[0], 0)
+        
+        self.cursor.execute("SELECT count FROM products WHERE id = 2")
+        row = self.cursor.fetchone()
+        self.assertEqual(row[0], 0)
+        
+        #check if the sales on the products are increased and if the sale is saved in the sales table
+        self.cursor.execute("SELECT sales FROM products WHERE id = 1")
+        row = self.cursor.fetchone()
+        self.assertEqual(row[0], 1)
+        
+        self.cursor.execute("SELECT sales FROM products WHERE id = 2")
+        row = self.cursor.fetchone()
+        self.assertEqual(row[0], 4)
+        
+        self.cursor.execute("SELECT * FROM sales WHERE user_id = 1 AND product_id = 1")
+        row = self.cursor.fetchone()
+        self.assertIsNotNone(row)
+        
+        self.cursor.execute("SELECT * FROM sales WHERE user_id = 1 AND product_id = 2")
+        row = self.cursor.fetchone()
+        self.assertIsNotNone(row)
+        
+        response = self.app.post("/payment/999")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.data, b"User not found")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
+        
+        response = self.app.post("/payment/invalid_id")
+        #print(response.data)
+        try:
+            self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.data, b"User not found")
+        except AssertionError:
+            self.fail("Unexpected response data:" + str(response.data))
+            raise
         
     
     def tearDown(self):

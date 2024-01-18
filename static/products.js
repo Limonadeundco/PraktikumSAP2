@@ -45,8 +45,9 @@ async function getImportantData() {
 }
 
 async function addProductToCart(product_id, product_container) {
-    let inputs = document.getElementsByClassName("product-quantity");
-    let quantity = inputs[product_id - 1].value;
+    let quantity = document.getElementsByClassName(
+        "product-quantity-" + product_id
+    )[0].value;
 
     if (quantity < 1) {
         displayErrorMessage(
@@ -110,6 +111,7 @@ async function generateTable(initData, tableData) {
 
     for (let i = 0; i < tableData.length; i++) {
         let row = document.createElement("tr");
+        let row_buttons = document.createElement("tr");
         for (let y = 0; y < tableData[i].length; y++) {
             let product = tableData[i][y];
 
@@ -119,8 +121,16 @@ async function generateTable(initData, tableData) {
 
             product = product.product;
 
-            let product_container = document.createElement("td");
+            let container = document.createElement("td");
+            container.classList.add("product-container");
+
+            let product_container_pre = document.createElement("div");
+            product_container_pre.classList.add("product-container-pre");
+            container.appendChild(product_container_pre);
+
+            let product_container = document.createElement("div");
             product_container.classList.add("product-container");
+            product_container_pre.appendChild(product_container);
 
             let product_image = document.createElement("img");
             product_image.src = "http://127.0.0.1:5000/get_image/" + product.id;
@@ -134,7 +144,7 @@ async function generateTable(initData, tableData) {
             product_container.appendChild(product_name);
 
             let product_price = document.createElement("p");
-            product_price.innerHTML = product.price + "€";
+            product_price.innerHTML = product.price.toFixed(2) + "€";
             product_price.classList.add("product-price");
             product_container.appendChild(product_price);
 
@@ -143,36 +153,41 @@ async function generateTable(initData, tableData) {
             product_description.classList.add("product-description");
             product_container.appendChild(product_description);
 
+            let product_container_bottom = document.createElement("div");
+            product_container_bottom.classList.add("product-container-bottom");
+
+            product_container_pre.appendChild(product_container_bottom);
+
             // create add to cart button
             let add_to_cart_button = document.createElement("button");
             add_to_cart_button.classList.add("add-to-cart-button");
             add_to_cart_button.textContent = "In den Warenkorb";
             add_to_cart_button.onclick = function () {
-                addProductToCart(product.id, product_container);
+                addProductToCart(product.id, product_container_bottom);
             };
-            product_container.appendChild(add_to_cart_button);
+            product_container_bottom.appendChild(add_to_cart_button);
 
             // create quantity input
             let product_quantity = document.createElement("input");
-            product_quantity.classList.add("product-quantity");
+            product_quantity.classList.add("product-quantity-" + product.id);
             product_quantity.type = "number";
             product_quantity.min = 1;
-            product_quantity.max = initData.productCount;
+            product_quantity.max = product.count;
             product_quantity.value = 1;
             product_quantity.addEventListener("input", function () {
-                if (this.value > initData.productCount) {
-                    this.value = initData.productCount;
+                if (this.value > product.count) {
+                    this.value = product.count;
                 }
             });
-            product_container.appendChild(product_quantity);
+            product_container_bottom.appendChild(product_quantity);
 
             //create status message
             let product_status = document.createElement("p");
             product_status.classList.add("status", "fade-out");
             product_status.textContent = "";
-            product_container.appendChild(product_status);
+            product_container_bottom.appendChild(product_status);
 
-            row.appendChild(product_container);
+            row.appendChild(container);
         }
         table_body.appendChild(row);
     }
@@ -218,8 +233,10 @@ async function calculateTable(initData) {
             table.push(row);
         }
 
+        console.log(table);
         return table;
     } else {
+        console.log(table);
         return table;
     }
 }
@@ -262,6 +279,8 @@ async function onSearch() {
 }
 
 window.addEventListener("load", async function () {
+    checkForUserCookie();
+
     initData = await getImportantData();
     console.log(initData);
 
@@ -272,3 +291,28 @@ window.addEventListener("load", async function () {
         });
     });
 });
+
+async function checkForUserCookie() {
+    let user_cookie = document.cookie;
+    if (user_cookie.length > 0) {
+        httpGetText("http://127.0.0.1:5000/check_cookie/" + user_cookie).then(
+            (response) => {
+                if (response == "Cookie found") {
+                    return;
+                } else {
+                    httpGetJson("http://127.0.0.1:5000/get_cookie").then(
+                        (response) => {
+                            console.log(response);
+                            document.cookie = response.user_id;
+                        }
+                    );
+                }
+            }
+        );
+    } else {
+        httpGetJson("http://127.0.0.1:5000/get_cookie").then((response) => {
+            console.log(response);
+            document.cookie = response.user_id;
+        });
+    }
+}

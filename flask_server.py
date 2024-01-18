@@ -4,6 +4,8 @@ import database_commands.database_commands as database_commands
 import cv2
 import base64
 import recommended_product_functions
+import datetime
+
 
 rpf = recommended_product_functions.recommended_product_functions()
 
@@ -26,7 +28,7 @@ class Server():
         dataBase.drop_table(connection, cursor, "baskets")
         
         #dataBase.create_table(connection, cursor, "products", "id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, description TEXT, count INTEGER, sales INTEGER, category TEXT")
-        dataBase.create_table(connection, cursor, "sales", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, sale_time TEXT, count INTEGER")
+        dataBase.create_table(connection, cursor, "sales", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, sale_time TEXT, count INTEGER, user_id TEXT")
         dataBase.create_table(connection, cursor, "recommended_products", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, sales_last_day INTEGER")
         #dataBase.create_table(connection, cursor, "images", "id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, image_id INTEGER, image_path TEXT")
         dataBase.create_table(connection, cursor, "baskets", "id INTEGER PRIMARY KEY AUTOINCREMENT, user_id, product_id INTEGER, count INTEGER")
@@ -115,6 +117,10 @@ class Server():
 
         response = []
         for y, product in enumerate(database_response):
+            
+            if product[4] == 0:
+                continue
+            
             product = {'product': {column_names[i]: database_response[y][i] for i in range(len(column_names))}}
             response.append(product)
 
@@ -547,6 +553,70 @@ class Server():
     def contact():
         return flask.render_template("contact.html")
 
+    @app.route("/checkout", methods=["GET"])
+    def checkout():
+        return flask.render_template("checkout.html")
+    
+    ################################################################
+    #                                                              #
+    #                         Checkout                             #
+    #                                                              #
+    ################################################################
+    
+    @app.route("/payment/<user_id>", methods=["POST"])
+    def payment(user_id):
+        
+        connection, cursor = dataBase.connect_database("database.db")
+        
+        # Check if the user_id exists in the database
+        cursor.execute("SELECT * FROM cookies WHERE cookie_id = ?", (user_id,))
+        row = cursor.fetchone()
+
+        # If the user id is not in the database, return an error
+        if row is None:
+            return flask.Response("User not found", status=404)
+        
+        database_response = dataBase.select_data(cursor, "baskets", "*", f"user_id = '{user_id}'")
+        
+        if database_response == []:
+            return flask.Response("Basket is empty", status=404)
+        
+        for product in database_response:
+            product_id = product[2]
+            count = product[3]
+            
+            # Check if the product count is less than the requested count
+            database_response = dataBase.select_data(cursor, "products", "*", f"id = {product_id}")
+            product_count = database_response[0][4] # Assuming the count is the 5th column in the products table
+            if product_count < count:
+                return flask.Response("Insufficient product count", status=299)
+            
+            current_time = datetime.datetime.now()
+            current_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
+            
+            # Update the product count
+            new_count = product_count - count
+            dataBase.update_data(connection, cursor, "products", f"count = {new_count}", f"id = {product_id}")
+            
+            # Update the product sales
+            database_response = dataBase.select_data(cursor, "products", "*", f"id = {product_id}")
+            product_sales = database_response[0][5] # Assuming the sales is the 6th column in the products table
+            
+            if product_sales is None:
+                product_sales = 0
+            
+            new_sales = product_sales + count
+            dataBase.update_data(connection, cursor, "products", f"sales = {new_sales}", f"id = {product_id}")
+            
+            # Save the sale in the sales table
+            dataBase.insert_data(connection, cursor, "sales", "product_id, sale_time, count, user_id", (product_id, str(current_time), count, user_id))
+            
+            # Delete the product from the basket
+            dataBase.delete_data(connection, cursor, "baskets", f"user_id = '{user_id}' AND product_id = {product_id}")
+            
+        return flask.Response("Payment successful", status=200)
+    
+
 
 
 ################################################################
@@ -556,4 +626,4 @@ class Server():
 ################################################################    
 if __name__ == "__main__":
     Server = Server()
-    app.run(debug=False, port=5000)
+    app.run(debug=True, port=5000)

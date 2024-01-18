@@ -55,6 +55,7 @@ async function checkForUserCookie() {
 
 async function addProductToCart(product_id, product_container) {
     let inputs = document.getElementsByClassName("product-quantity");
+    //console.log(inputs);
     let quantity = inputs[product_id - 1].value;
 
     if (quantity < 1) {
@@ -94,7 +95,7 @@ async function addProductToCart(product_id, product_container) {
 }
 
 async function createRecommendedProducts() {
-    let recommended_elements = 2;
+    let recommended_elements = 6;
 
     // Get the recommended products
     let recommended_products = await httpGetJson(
@@ -116,12 +117,12 @@ async function createRecommendedProducts() {
         );
 
         // create product container
-        let product_container = document.createElement("div");
+        let product_container = document.createElement("ul");
         product_container.classList.add("product-container");
         container.appendChild(product_container);
 
         //create div in the product-container
-        let recommended_product = document.createElement("div");
+        let recommended_product = document.createElement("li");
         recommended_product.classList.add("recommended-product");
         product_container.appendChild(recommended_product);
 
@@ -129,28 +130,28 @@ async function createRecommendedProducts() {
         let product_image = document.createElement("img");
         product_image.classList.add("product-image");
         product_image.src = "http://127.0.0.1:5000/get_image/" + (i + 1);
-        product_container.appendChild(product_image);
+        recommended_product.appendChild(product_image);
 
         // create name
         let product_name = document.createElement("h3");
         product_name.classList.add("name");
         product_name.textContent = product_info.name;
-        product_container.appendChild(product_name);
+        recommended_product.appendChild(product_name);
 
         // create description
         let product_description = document.createElement("p");
         product_description.classList.add("description");
         product_description.textContent = product_info.description;
-        product_container.appendChild(product_description);
+        recommended_product.appendChild(product_description);
 
         // create add to cart button
         let add_to_cart_button = document.createElement("button");
         add_to_cart_button.classList.add("add-to-cart-button");
         add_to_cart_button.textContent = "In den Warenkorb";
         add_to_cart_button.onclick = function () {
-            addProductToCart(recommended_product_id, product_container);
+            addProductToCart(recommended_product_id, recommended_product);
         };
-        product_container.appendChild(add_to_cart_button);
+        recommended_product.appendChild(add_to_cart_button);
 
         // create quantity input
         let product_quantity = document.createElement("input");
@@ -164,13 +165,13 @@ async function createRecommendedProducts() {
                 this.value = product_info.count;
             }
         });
-        product_container.appendChild(product_quantity);
+        recommended_product.appendChild(product_quantity);
 
         //create status message
         let product_status = document.createElement("p");
         product_status.classList.add("status", "fade-out");
         product_status.textContent = "";
-        product_container.appendChild(product_status);
+        recommended_product.appendChild(product_status);
     }
 }
 

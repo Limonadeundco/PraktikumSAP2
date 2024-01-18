@@ -11,10 +11,12 @@ database_commands = database_commands.DataBase()
 
 connection, cursor = database_commands.connect_database("database.db")
 
+all_grocery_items = []
+
 
 #delte all data from the database but the first two
-database_commands.delete_all_data(connection, cursor, "products", "id > 2")
-database_commands.delete_all_data(connection, cursor, "images", "id > 2")
+database_commands.delete_all_data(connection, cursor, "products", "id > 0")
+database_commands.delete_all_data(connection, cursor, "images", "id > 0")
 
 # Delete "images2" directory if it exists
 if os.path.exists("images2"):
@@ -58,19 +60,32 @@ def generate_random_background_color():
     
     return (r, g, b)
 
-
 def generate_random_name():
-    url = 'https://www.chefkoch.de/'
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, 'html.parser')
+    grocery_items = []
+    grocery_item_pictures = []
+    while True:
+        if not grocery_items:  # if grocery_items is empty
+            url = 'https://www.chefkoch.de/'
+            response = requests.get(url)
+            soup = BeautifulSoup(response.text, 'html.parser')
 
-    # Find all elements with the class 'item-name' and extract their text
-    grocery_items = [item.text for item in soup.find_all(class_='ds-recipe-card__headline ds-teaser-link__headline ds-trunc ds-trunc-3 ds-text-sans ds-h4')]
+            for item in soup.find_all(class_='ds-recipe-card__image-wrap ds-teaser-link__image-wrap'):
+                grocery_item_pictures.append(item.find('img')['src'])
+                grocery_items.append(item.find('img')['alt'])
 
-    # Remove duplicates by converting the list to a set and back to a list
-    grocery_items = list(set(grocery_items))
+        # Shuffle the items to ensure randomness
+        combined = list(zip(grocery_items, grocery_item_pictures))
+        random.shuffle(combined)
+        grocery_items, grocery_item_pictures = zip(*combined)
 
-    return random.choice(grocery_items)
+        for grocery_item, grocery_item_picture in zip(grocery_items, grocery_item_pictures):
+            if grocery_item not in all_grocery_items and "newsletter" not in grocery_item_picture:
+                all_grocery_items.append(grocery_item)
+                return grocery_item, grocery_item_picture
+
+        # Clear the lists for the next iteration
+        grocery_items = []
+        grocery_item_pictures = []
 
 # Specify the number of pictures to generate
 num_pictures = 80
@@ -93,7 +108,7 @@ for i in range(num_pictures):
     color = generate_random_color()
 
     # Generate a random grocery item name
-    name = generate_random_name()
+    name, picture_link = generate_random_name()
     name = name.replace('\n', '')
     name = name.replace('/n', '')
     name = name.replace('\r', '')
@@ -101,13 +116,15 @@ for i in range(num_pictures):
     name = name.replace('\\', '')
     name = name.replace('//', '')
     name = name.replace('-', ' ')
+    name = name.replace('„', '')
+    name = name.replace("“", '')
     name = name.strip()
     name = name.rstrip()
 
     r, g, b = generate_random_background_color()
     
     # Create a new image with a white background
-    image = Image.new('RGB', (500, 500), color=(r, g, b))
+    image = Image.open(BytesIO(requests.get(picture_link).content))
 
     # Create a draw object
     draw = ImageDraw.Draw(image)
@@ -122,6 +139,18 @@ for i in range(num_pictures):
     name = name.replace('ü', 'ue')
     name = name.replace('ö', 'oe')
     name = name.replace('ß', 'ss')
+    name = name.replace('Ä', 'Ae')
+    name = name.replace('Ü', 'Ue')
+    name = name.replace('Ö', 'Oe')
+    name = name.replace('ß', 'Ss')
+    name = name.replace('"', '')
+    name = name.replace("'", '')
+    name = name.replace(":", '')
+    name = name.replace(";", '')
+    name = name.replace("!", '')
+    name = name.replace("?", '')
+    name = name.replace("(", '')
+    name = name.replace(")", '')
     
     
     try:
@@ -160,7 +189,39 @@ for i in range(num_pictures):
     
     print("i", i)
     
-    database_commands.insert_data(connection, cursor, "products", "id, name, price, description", (i+3, name, random.randint(1, 10000)/100, descriptions[which_description]))
-    database_commands.insert_data(connection, cursor, "images", "image_path, product_id, image_id", (output_directory + name + '.png', i+3,1))
+    count_category = random.randint(1, 4)
+    
+    if count_category == 1:
+        count = random.randint(1, 10)
+    elif count_category == 2:
+        count = random.randint(11, 100)
+    elif count_category == 3:
+        count = random.randint(1, 5)
+    else:
+        count = random.randint(20, 200)
+        
+    price_category = random.randint(1, 6)
+    
+    if price_category == 1:
+        price = random.randint(1, 100) / 100
+        
+    elif price_category == 2:
+        price = random.randint(1, 1000000) / 10
+        
+    elif price_category == 3:
+        price = random.randint(1, 100) / 10
+        
+    elif price_category == 4:
+        price = 42.99
+        
+    elif price_category == 5:
+        price = random.randint(1, 500) / 10
+    
+    else:
+        price = random.randint(1, 10000)/100
+    
+    
+    database_commands.insert_data(connection, cursor, "products", "id, name, price, description, count", (i+1, name, price, descriptions[which_description], count))
+    database_commands.insert_data(connection, cursor, "images", "image_path, product_id, image_id", (output_directory + name + '.png', i+1,1))
 
 database_commands.disconnect_database(connection)

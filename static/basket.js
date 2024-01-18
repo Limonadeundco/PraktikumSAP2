@@ -13,6 +13,21 @@ async function httpGetJson(url) {
         });
 }
 
+async function httpGetText(url) {
+    return fetch(url)
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text();
+        })
+        .catch((e) => {
+            console.log(
+                "There was a problem with your fetch operation: " + e.message
+            );
+        });
+}
+
 // Read the basket ID from the cookie
 function getBasketIdFromCookie() {
     const cookies = document.cookie.split(";");
@@ -44,6 +59,8 @@ async function getProductsForBasketId(basket_id) {
 }
 
 window.addEventListener("load", async function () {
+    await checkForUserCookie();
+
     let basket_id = document.cookie;
     let basket_products = await getProductsForBasketId(basket_id);
 
@@ -81,3 +98,28 @@ window.addEventListener("load", async function () {
     let total_price_element = document.getElementById("total-price");
     total_price_element.innerHTML = "Total: " + total_price.toFixed(2) + "€";
 });
+
+async function checkForUserCookie() {
+    let user_cookie = document.cookie;
+    if (user_cookie.length > 0) {
+        httpGetText("http://127.0.0.1:5000/check_cookie/" + user_cookie).then(
+            (response) => {
+                if (response == "Cookie found") {
+                    return;
+                } else {
+                    httpGetJson("http://127.0.0.1:5000/get_cookie").then(
+                        (response) => {
+                            console.log(response);
+                            document.cookie = response.user_id;
+                        }
+                    );
+                }
+            }
+        );
+    } else {
+        httpGetJson("http://127.0.0.1:5000/get_cookie").then((response) => {
+            console.log(response);
+            document.cookie = response.user_id;
+        });
+    }
+}

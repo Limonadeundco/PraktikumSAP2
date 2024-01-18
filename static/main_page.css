@@ -12,12 +12,16 @@ header {
     box-shadow: 0 6px 12px 0 rgba(0, 0, 0, 0.4);
     align-items: center;
     overflow: auto;
+    position: sticky;
+    top: 0; /* Add this line to make the header sticky */
 }
 
 nav {
     display: flex;
     align-items: center;
     justify-content: start;
+    position: sticky;
+    top: 0; /* Add this line to make the nav bar sticky */
 }
 
 nav img {
@@ -69,4 +73,45 @@ nav ul li a {
 .fade-out {
     transition: opacity 1s ease-out;
     opacity: 0;
+}
+
+#recommended-product-container ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: inline-flex;
+    background-color: #666666;
+    margin: 1vw;
+    border-radius: 1vw;
+    padding: 1vw;
+    align-items: center;
+    align-self: center;
+}
+
+#recommended-product-container ul li img {
+    height: 25vh;
+    width: 25vh;
+    margin: 0.5vw;
+    border-radius: 1vw;
+}
+
+#recommended-product-container ul li {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+    text-align: center;
+    text-wrap: wrap;
+    height: 100%;
+    width: 25vw;
+    align-self: center;
+}
+
+#recommended-product-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    align-self: center;
+    width: 100%;
+    justify-content: space-around;
 }
