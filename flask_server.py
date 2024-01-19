@@ -5,20 +5,22 @@ import cv2
 import base64
 import recommended_product_functions
 import datetime
-import dotenv
+from flask_httpauth import HTTPBasicAuth
+import json
+import bcrypt
+from flask import request
+import os
+from werkzeug.utils import secure_filename
 
-dotenv.load_dotenv()
-
-
-
+auth = HTTPBasicAuth()
 
 rpf = recommended_product_functions.recommended_product_functions()
 
 dataBase = database_commands.DataBase()
 app = flask.Flask(__name__)
 
-
 allowed_columns = ["name", "price", "description", "count"]
+allowed_columns_extra_special = ["id", "name", "price", "description", "count"]
 string_colums = ["name", "description"]
 int_colums = ["price", "count"]
 
@@ -44,6 +46,27 @@ class Server():
         
         #dataBase.insert_data(connection, cursor, "images", "id, product_id, image_id, image_path", (1, 1, 1, "images/products/1/1.png"))
         #dataBase.insert_data(connection, cursor, "images", "id, product_id, image_id, image_path", (2, 2, 1, "images/products/2/1.png"))
+        # Fetch all users from the database
+        # Fetch all users from the database
+        connectionUser, cursorUser = dataBase.connect_database("users.db")
+        users = dataBase.select_data(cursorUser, "users", "*")
+
+        # Convert bytes to strings in the users data
+        users_dict = {}
+        for user in users:
+            username, hashed_password = user
+            if isinstance(hashed_password, bytes):
+                # Convert bytes to string
+                hashed_password = hashed_password.decode('utf-8')
+            users_dict[username] = hashed_password
+
+        # Create a new dictionary with "users" as a key
+        data = {"users": users_dict}
+
+        # Convert the data to JSON
+        data_json = json.dumps(data)
+
+        print(data_json)
         
         
     ################################################################
@@ -107,13 +130,13 @@ class Server():
                 limit = int(limit)
             except ValueError:
                 return flask.Response("Invalid limit", status=404)
-            query = f"id < {limit + 1}"
+            
         else:
-            query = "1"
+            limit = None
 
         _, cursor = dataBase.connect_database("database.db")
 
-        database_response = dataBase.select_data(cursor, "products", "*", query)
+        database_response = dataBase.select_data_limit(cursor, "products", "*", limit)
 
         if database_response is None:
             return flask.Response("No Products found", status=404)
@@ -192,7 +215,7 @@ class Server():
         data = {}
         for param in params:
             key, value = param.split('=')
-            if key not in allowed_columns:
+            if key not in allowed_columns_extra_special:
                 return flask.Response(f"Column {key} not found", status=404)
             if key in string_colums:
                 value = str(value)
@@ -322,7 +345,51 @@ class Server():
             return flask.send_file(image_path, mimetype='image/png')
         except:
             return flask.Response("Image not found on disk", status=404)
-       
+        
+
+
+    @app.route("/add_image/product/<product_id>/<image_id>", methods=["POST"])
+    @app.route("/add_image/product/<product_id>", defaults={'image_id': None}, methods=["POST"])
+    @app.route("/add_image/utility/<path:parameters>", methods=["POST"])
+    def add_image_product(parameters=None, product_id=None, image_id=None):
+        # Get the image from the request
+        image = request.files['image']
+        filename = secure_filename(image.filename)
+
+        if parameters is not None:
+            # Case: /u/
+            # Save the image in the images folder
+            image.save(os.path.join('images/utility', filename))
+        else:
+            # Case: //
+            # Save the image in the images db with its product id and image id
+            try:
+                product_id = int(product_id)
+            except ValueError:
+                return flask.Response("Invalid id", status=404)
+            
+            try:
+                image_id = int(image_id) if image_id else 1
+            except ValueError:
+                return flask.Response("Invalid image id", status=404)
+            
+            #check if the folders exist
+            if not os.path.exists(f'images/products/{product_id}'):
+                os.makedirs(f'images/products/{product_id}')
+                
+
+            image_path = f'images/products/{product_id}/{image_id}.png'
+            image.save(image_path)
+            
+            connection, cursor = dataBase.connect_database("database.db")
+            
+            dataBase.insert_data(connection, cursor, "images", "product_id, image_id, image_path", (product_id, image_id, image_path))
+            
+            dataBase.disconnect_database(connection)
+            
+
+        return flask.Response("Image saved successfully", status=200)
+    
        
        
     ################################################################
@@ -565,6 +632,11 @@ class Server():
     def checkout():
         return flask.render_template("checkout.html")
     
+    @app.route("/login", methods=["GET"])
+    @auth.login_required
+    def login():
+        return flask.render_template("admin.html")
+    
     ################################################################
     #                                                              #
     #                         Checkout                             #
@@ -625,6 +697,27 @@ class Server():
         return flask.Response("Payment successful", status=200)
     
 
+    @auth.verify_password
+    def hash_pw(user, password):
+        #hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        return check_auth(user, password)
+    
+    
+def check_auth(user, password):
+    connection, cursor = dataBase.connect_database("users.db")
+    
+    # Check if the user_id exists in the database
+    cursor.execute("SELECT * FROM users WHERE username = ?", (user,))
+    row = cursor.fetchone()
+
+    # If the user id is not in the database, return an error
+    if row is None:
+        return False
+    
+    if bcrypt.checkpw(password.encode('utf-8'), row[1]):
+        return True
+    else:
+        return False
 
 
 ################################################################

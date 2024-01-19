@@ -8,38 +8,43 @@ body {
 }
 
 h1 {
-    font-size: 3vw;
+    font-size: 4vw;
     padding: 0;
     margin: 0;
-    color: limegreen;
+    text-align: center;
+    margin: 6vh;
 }
 
 table {
-    width: 40vw;
+    width: 70vw;
     margin-top: 2vh;
     margin-bottom: 2vh;
-    border-collapse: collapse;
     border-spacing: 0;
+    align-self: center;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 2vw; /* Add this line to set rounded corners */
+    border-collapse: separate; /* Add this line to collapse the borders */
+    overflow: hidden; /* Add this line to hide the overflow */
+    border: 0.75vh solid limegreen;
 }
-
 table thead tr {
-    background-color: pink;
     color: limegreen;
 }
 
 table thead tr th {
-    padding: 0.5vw;
+    padding: 1vw;
     border: 1px solid limegreen;
 }
 
 table tbody tr {
-    background-color: red;
     color: aliceblue;
     border: 1px solid limegreen;
 }
 
 table tbody tr td {
-    padding: 0.5vw;
+    padding: 1vw;
     border: 1px solid limegreen;
     text-align: center;
 }
@@ -100,4 +105,32 @@ nav ul li a {
     padding: 2vh;
 }
 
-/* Main style */
+#total-price {
+    text-align: center;
+    font-size: 3dvw;
+    margin: 4vh;
+    margin-bottom: 2vh !important;
+}
+
+input {
+    background-color: #666666;
+    color: limegreen;
+    border: none;
+    border-radius: 1vw;
+    padding: 1vw;
+    font-size: 2vw;
+    margin: 1vw;
+    cursor: pointer;
+    font-weight: bold;
+    align-self: center;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 2.5vw;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}

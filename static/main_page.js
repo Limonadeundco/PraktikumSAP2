@@ -142,7 +142,9 @@ async function createRecommendedProducts() {
         // create image
         let product_image = document.createElement("img");
         product_image.classList.add("product-image");
-        product_image.src = "http://10.183.210.108:5000/get_image/" + (i + 1);
+        product_image.src =
+            "http://10.183.210.108:5000/get_image/" +
+            recommended_products[i].product_id;
         recommended_product.appendChild(product_image);
 
         // create name

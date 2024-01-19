@@ -96,7 +96,8 @@ window.addEventListener("load", async function () {
     }
 
     let total_price_element = document.getElementById("total-price");
-    total_price_element.innerHTML = "Total: " + total_price.toFixed(2) + "€";
+    total_price_element.innerHTML =
+        "Zu zahlen: " + total_price.toFixed(2) + "€";
 });
 
 function setCookie(name, value, days) {

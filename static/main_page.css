@@ -117,3 +117,53 @@ nav ul li a {
     width: 100%;
     justify-content: space-around;
 }
+
+h1 {
+    font-size: 4vw;
+    font-weight: bold;
+    text-align: center;
+    margin: 6vh;
+}
+
+h2 {
+    font-size: 3.25vw;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 6vh;
+    margin-bottom: 1vh;
+}
+
+footer p {
+    font-size: 1.5vw;
+    font-weight: bold;
+    text-align: left;
+    margin: 3vh;
+    margin-left: 3vw;
+    padding: 0;
+}
+
+button {
+    background-color: #333333;
+    color: limegreen;
+    border-radius: 1vw;
+    border: none;
+    padding: 2vh;
+    font-size: 3vh;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 1vh;
+    width: 13vw;
+    height: 9vh;
+}
+
+input {
+    margin: 1vh;
+    width: 13vw;
+    border-radius: 1vw;
+    height: 5vh;
+    background-color: #333333;
+    color: aliceblue;
+    text-align: center;
+    border: none;
+    align-items: center;
+}

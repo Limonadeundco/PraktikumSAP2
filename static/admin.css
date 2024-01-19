@@ -1,0 +1,11 @@
+#image-drop-zone {
+    border: 2px dashed #0087f7;
+    border-radius: 5px;
+    padding: 25px;
+    text-align: center;
+    font: 20pt bold "Helvetica";
+    color: #0087f7;
+    margin-bottom: 25px;
+    width: 200px;
+    height: 100px;
+}

@@ -1,0 +1,41 @@
+<!-- FILEPATH: /c:/Users/Admin/OneDrive/Dokumente/GitHub/PraktikumSAP2/templates/admin.html -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Admin Website</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="{{ url_for('static', filename='admin.css') }}"
+        />
+    </head>
+    <body>
+        <h1>Welcome to the Admin Website</h1>
+        <!-- Add your content here -->
+
+        <input id="product_id" type="number" placeholder="Produkt ID" />
+        <input type="text" id="product_name" placeholder="Produktname" />
+        <input type="text" id="product_price" placeholder="Preis" />
+        <input
+            type="text"
+            id="product_description"
+            placeholder="Beschreibung"
+        />
+        <input type="number" id="product_count" placeholder="Anzahl" />
+        <input type="number" id="image_id" placeholder="Bild ID" />
+
+        <div
+            id="image-drop-zone"
+            ondrop="dropHandler(event);"
+            ondragover="dragOverHandler(event);"
+        >
+            <p>Bild hier ablegen</p>
+        </div>
+
+        <button id="addProduct">Produkt hinzufügen</button>
+
+        <script src="{{url_for('static', filename='admin.js')}}"></script>
+    </body>
+</html>

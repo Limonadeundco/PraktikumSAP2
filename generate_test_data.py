@@ -181,19 +181,22 @@ for i in range(num_pictures):
              "Auto", "Baum", "Stuhl", "Buch", "Tisch", "Haus", "Schuh", "Schlüssel", "Lampe", "Computer", 
              "Fenster", "Tür", "Bild", "Uhr", "Telefon", "Brille", "Kugelschreiber", "Tasse", "Teller", "Löffel"]
 
-    descriptions = []
+    descriptions1 = []
+    descriptions2 = []
 
     for _ in range(50):
         adjective = random.choice(adjectives)
         noun = random.choice(nouns)
-        descriptions.append(f"{adjective} {noun}.")
+        descriptions1.append(f"{adjective} {noun}.")
         
     for _ in range(50):
         adjective = random.choice(adjectives)
         noun = random.choice(nouns)
-        descriptions.append(f"{adjective} {noun}.")
+        descriptions2.append(f"{adjective} {noun}.")
+        
 
-    which_description = random.randint(0, 49)
+    which_description1 = random.randint(0, 49)
+    which_description2 = random.randint(0, 49)
 
     
     #save image path and name in the database
@@ -237,7 +240,7 @@ for i in range(num_pictures):
         price = random.randint(1, 10000)/100
     
     
-    database_commands.insert_data(connection, cursor, "products", "id, name, price, description, count", (i+1, name, price, descriptions[which_description], count))
+    database_commands.insert_data(connection, cursor, "products", "id, name, price, description, count", (i+1, name, price, f"{descriptions1[which_description1]} {descriptions2[which_description2]}", count))
     database_commands.insert_data(connection, cursor, "images", "image_path, product_id, image_id", (output_directory + name + '.png', i+1,1))
 
 database_commands.disconnect_database(connection)

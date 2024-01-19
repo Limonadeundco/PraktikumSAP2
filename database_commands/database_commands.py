@@ -65,4 +65,7 @@ class DataBase():
         cursor.execute("DELETE FROM " + table + " WHERE " + condition)
         connection.commit()
         
-        
+    def select_data_limit(self, cursor, table, columns, limit):
+        print("SELECT " + columns + " FROM " + table + " LIMIT " + str(limit))
+        cursor.execute("SELECT " + columns + " FROM " + table + " LIMIT " + str(limit))
+        return cursor.fetchall()
