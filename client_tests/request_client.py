@@ -1,8 +1,8 @@
 import requests
 import json
 
-url = "http://10.183.210.108:5000/update_product/1/name=hgfidsfhdfhhfjdhfhdhf"
+url = "http://10.183.210.108:5000/clear_basket/*"
 
-response = requests.put(url)
+response = requests.delete(url)
 
 print(response.text)

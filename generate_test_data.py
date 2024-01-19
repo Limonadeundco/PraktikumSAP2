@@ -223,7 +223,12 @@ for i in range(num_pictures):
         price = random.randint(1, 100) / 10
         
     elif price_category == 4:
-        price = random.randint(1, 1000000) / 10
+        random.randint(1,2  )
+        if random.randint(1,2) == 1:
+            price = random.randint(1, 1000000) / 100
+        else:
+            
+            price = random.randint(1, 10) / 10
         
     elif price_category == 5:
         price = random.randint(1, 500) / 10

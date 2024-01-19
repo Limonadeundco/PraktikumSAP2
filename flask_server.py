@@ -5,6 +5,11 @@ import cv2
 import base64
 import recommended_product_functions
 import datetime
+import dotenv
+
+dotenv.load_dotenv()
+
+
 
 
 rpf = recommended_product_functions.recommended_product_functions()
@@ -431,6 +436,9 @@ class Server():
     def clear_basket(user_id):
         
         connection, cursor = dataBase.connect_database("database.db")
+        
+        if user_id == "*":
+            return flask.Response("Invalid user id", status=404)
         
         # Check if the user_id exists in the database
         cursor.execute("SELECT * FROM cookies WHERE cookie_id = ?", (user_id,))
