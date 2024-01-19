@@ -283,21 +283,6 @@ class Server():
             recommended_products.append({"id": product[0], "product_id": product[1], "sales_last_day": product[2]})
         
         return flask.jsonify(recommended_products=recommended_products)
-
-    @app.route("/get_all_recommended_products", methods=["GET"])
-    def get_all_recommended_products():
-        _, cursor = dataBase.connect_database("database.db")
-        
-        database_response = dataBase.select_data(cursor, "recommended_products", "*", "1")
-        
-        if database_response == []:
-            return flask.Response("Product not found", status=404)
-        
-        recommended_products = []
-        for product in database_response:
-            recommended_products.append({"id": product[0], "name": product[1], "price": product[2], "description": product[3], "count": product[4]})
-        
-        return flask.jsonify(recommended_products=recommended_products)
     
     
     
