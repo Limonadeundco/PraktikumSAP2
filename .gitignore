@@ -399,3 +399,5 @@ FodyWeavers.xsd
 
 .venv
 .venv/*
+users.db
+.env
