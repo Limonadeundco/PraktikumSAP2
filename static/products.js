@@ -35,10 +35,10 @@ async function httpGetText(url) {
 
 async function getImportantData() {
     let product_count = await httpGetJson(
-        "http://127.0.0.1:5000/get_number_of_all_products"
+        "http://10.183.210.108:5000/get_number_of_all_products"
     );
     let get_all_products = await httpGetJson(
-        "http://127.0.0.1:5000/get_all_products/" + rows * products_per_row
+        "http://10.183.210.108:5000/get_all_products/" + rows * products_per_row
     );
 
     return { productCount: product_count[0][0], allProducts: get_all_products };
@@ -58,9 +58,9 @@ async function addProductToCart(product_id, product_container) {
     }
 
     console.log("Adding product " + product_id + " " + quantity + "x to cart");
-    let user_cookie = document.cookie;
+    let user_cookie = document.cookie.split("=")[1];
     fetch(
-        "http://127.0.0.1:5000/add_product_to_basket/" +
+        "http://10.183.210.108:5000/add_product_to_basket/" +
             user_cookie +
             "/" +
             product_id +
@@ -76,7 +76,7 @@ async function addProductToCart(product_id, product_container) {
                 product_container
             );
         } else if (response.status == 200) {
-            displayErrorMessage(
+            displaySuccessMessage(
                 "Produkt erfolgreich in den Warenkorb gelegt!",
                 product_container
             );
@@ -133,7 +133,8 @@ async function generateTable(initData, tableData) {
             product_container_pre.appendChild(product_container);
 
             let product_image = document.createElement("img");
-            product_image.src = "http://127.0.0.1:5000/get_image/" + product.id;
+            product_image.src =
+                "http://10.183.210.108:5000/get_image/" + product.id;
             product_image.alt = product.product_name;
             product_image.classList.add("product-image");
             product_container.appendChild(product_image);
@@ -203,11 +204,15 @@ function displayErrorMessage(message, product_container) {
     setTimeout(function () {
         error_message.classList.add("fade-out");
     }, 3000);
+
+    setTimeout(function () {
+        error_message.textContent = "";
+        error_message.classList.remove("error-message");
+    }, 4000);
 }
 
 function displaySuccessMessage(message, product_container) {
-    let success_message =
-        product_container.getElementsByClassName("success-message")[0];
+    let success_message = product_container.getElementsByClassName("status")[0];
     success_message.textContent = message;
     success_message.classList.add("success-message");
     success_message.classList.remove("fade-out");
@@ -216,6 +221,11 @@ function displaySuccessMessage(message, product_container) {
     setTimeout(function () {
         success_message.classList.add("fade-out");
     }, 3000);
+
+    setTimeout(function () {
+        success_message.textContent = "";
+        success_message.classList.remove("success-message");
+    }, 4000);
 }
 
 async function calculateTable(initData) {
@@ -253,11 +263,11 @@ async function deleteTable() {
 async function searchProducts() {
     let search_input = document.getElementById("search").value;
     search_results = await httpGetJson(
-        "http://127.0.0.1:5000/search/" + search_input
+        "http://10.183.210.108:5000/search/" + search_input
     );
 
     let product_count = await httpGetJson(
-        "http://127.0.0.1:5000/get_number_of_all_products"
+        "http://10.183.210.108:5000/get_number_of_all_products"
     );
 
     return { productCount: product_count[0][0], allProducts: search_results };
@@ -292,27 +302,40 @@ window.addEventListener("load", async function () {
     });
 });
 
+function setCookie(name, value, days) {
+    var expires = "";
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "") + expires + "; path=/";
+}
+
 async function checkForUserCookie() {
-    let user_cookie = document.cookie;
+    let user_cookie = document.cookie.split("=")[1];
     if (user_cookie.length > 0) {
-        httpGetText("http://127.0.0.1:5000/check_cookie/" + user_cookie).then(
+        httpGetText(
+            "http://10.183.210.108:5000/check_cookie/" + user_cookie
+        ).then((response) => {
+            if (response == "Cookie found") {
+                return;
+            } else {
+                httpGetJson("http://10.183.210.108:5000/get_cookie").then(
+                    (response) => {
+                        console.log(response);
+                        setCookie("user_id", response.user_id, 7); // Set/replace the 'user_id' cookie
+                    }
+                );
+            }
+        });
+    } else {
+        httpGetJson("http://10.183.210.108:5000/get_cookie").then(
             (response) => {
-                if (response == "Cookie found") {
-                    return;
-                } else {
-                    httpGetJson("http://127.0.0.1:5000/get_cookie").then(
-                        (response) => {
-                            console.log(response);
-                            document.cookie = response.user_id;
-                        }
-                    );
-                }
+                console.log(response);
+                setCookie("user_id", response.user_id, 7); // Set/replace the 'user_id' cookie
+                console.log("doc cookier" + document.cookie);
             }
         );
-    } else {
-        httpGetJson("http://127.0.0.1:5000/get_cookie").then((response) => {
-            console.log(response);
-            document.cookie = response.user_id;
-        });
     }
 }

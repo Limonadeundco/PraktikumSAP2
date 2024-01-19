@@ -27,29 +27,41 @@ async function httpGetText(url) {
             );
         });
 }
+function setCookie(name, value, days) {
+    var expires = "";
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "") + expires + "; path=/";
+}
 
 async function checkForUserCookie() {
-    let user_cookie = document.cookie;
+    let user_cookie = document.cookie.split("=")[1];
     if (user_cookie.length > 0) {
-        httpGetText("http://127.0.0.1:5000/check_cookie/" + user_cookie).then(
+        httpGetText(
+            "http://10.183.210.108:5000/check_cookie/" + user_cookie
+        ).then((response) => {
+            if (response == "Cookie found") {
+                return;
+            } else {
+                httpGetJson("http://10.183.210.108:5000/get_cookie").then(
+                    (response) => {
+                        console.log(response);
+                        setCookie("user_id", response.user_id, 7); // Set/replace the 'user_id' cookie
+                    }
+                );
+            }
+        });
+    } else {
+        httpGetJson("http://10.183.210.108:5000/get_cookie").then(
             (response) => {
-                if (response == "Cookie found") {
-                    return;
-                } else {
-                    httpGetJson("http://127.0.0.1:5000/get_cookie").then(
-                        (response) => {
-                            console.log(response);
-                            document.cookie = response.user_id;
-                        }
-                    );
-                }
+                console.log(response);
+                setCookie("user_id", response.user_id, 7); // Set/replace the 'user_id' cookie
+                console.log("doc cookier" + document.cookie);
             }
         );
-    } else {
-        httpGetJson("http://127.0.0.1:5000/get_cookie").then((response) => {
-            console.log(response);
-            document.cookie = response.user_id;
-        });
     }
 }
 
@@ -67,9 +79,9 @@ async function addProductToCart(product_id, product_container) {
     }
 
     console.log("Adding product " + product_id + " " + quantity + "x to cart");
-    let user_cookie = document.cookie;
+    let user_cookie = document.cookie.split("=")[1];
     fetch(
-        "http://127.0.0.1:5000/add_product_to_basket/" +
+        "http://10.183.210.108:5000/add_product_to_basket/" +
             user_cookie +
             "/" +
             product_id +
@@ -99,7 +111,8 @@ async function createRecommendedProducts() {
 
     // Get the recommended products
     let recommended_products = await httpGetJson(
-        "http://127.0.0.1:5000/get_recommended_products/" + recommended_elements
+        "http://10.183.210.108:5000/get_recommended_products/" +
+            recommended_elements
     );
     recommended_products = recommended_products.recommended_products;
 
@@ -108,7 +121,7 @@ async function createRecommendedProducts() {
         let recommended_product_id = recommended_products[i].product_id;
 
         let product_info = await httpGetJson(
-            "http://127.0.0.1:5000/get_product/" + recommended_product_id
+            "http://10.183.210.108:5000/get_product/" + recommended_product_id
         );
         product_info = product_info.product;
 
@@ -129,7 +142,7 @@ async function createRecommendedProducts() {
         // create image
         let product_image = document.createElement("img");
         product_image.classList.add("product-image");
-        product_image.src = "http://127.0.0.1:5000/get_image/" + (i + 1);
+        product_image.src = "http://10.183.210.108:5000/get_image/" + (i + 1);
         recommended_product.appendChild(product_image);
 
         // create name

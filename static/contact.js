@@ -5,12 +5,12 @@ window.addEventListener("load", function () {
 async function checkForUserCookie() {
     let user_cookie = document.cookie;
     if (user_cookie.length > 0) {
-        httpGetText("http://127.0.0.1:5000/check_cookie/" + user_cookie).then(
+        httpGetText("http://10.183.210.108:5000/check_cookie/" + user_cookie).then(
             (response) => {
                 if (response == "Cookie found") {
                     return;
                 } else {
-                    httpGetJson("http://127.0.0.1:5000/get_cookie").then(
+                    httpGetJson("http://10.183.210.108:5000/get_cookie").then(
                         (response) => {
                             console.log(response);
                             document.cookie = response.user_id;
@@ -20,7 +20,7 @@ async function checkForUserCookie() {
             }
         );
     } else {
-        httpGetJson("http://127.0.0.1:5000/get_cookie").then((response) => {
+        httpGetJson("http://10.183.210.108:5000/get_cookie").then((response) => {
             console.log(response);
             document.cookie = response.user_id;
         });

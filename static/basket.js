@@ -30,7 +30,7 @@ async function httpGetText(url) {
 
 // Read the basket ID from the cookie
 function getBasketIdFromCookie() {
-    const cookies = document.cookie.split(";");
+    const cookies = document.cookie.split("=")[1].split(";");
     for (let i = 0; i < cookies.length; i++) {
         const cookie = cookies[i].trim();
         if (cookie.startsWith("basketId=")) {
@@ -42,7 +42,7 @@ function getBasketIdFromCookie() {
 
 async function getInfosForProductID(product_id) {
     let response = await httpGetJson(
-        "http://127.0.0.1:5000/get_product/" + product_id
+        "http://10.183.210.108:5000/get_product/" + product_id
     );
     let product_infos = response.product;
 
@@ -51,7 +51,7 @@ async function getInfosForProductID(product_id) {
 
 async function getProductsForBasketId(basket_id) {
     let response = await httpGetJson(
-        "http://127.0.0.1:5000/get_basket_for_user/" + basket_id
+        "http://10.183.210.108:5000/get_basket_for_user/" + basket_id
     );
     let basket_products = response.basket;
 
@@ -61,7 +61,7 @@ async function getProductsForBasketId(basket_id) {
 window.addEventListener("load", async function () {
     await checkForUserCookie();
 
-    let basket_id = document.cookie;
+    let basket_id = document.cookie.split("=")[1];
     let basket_products = await getProductsForBasketId(basket_id);
 
     console.log(basket_products);
@@ -99,27 +99,40 @@ window.addEventListener("load", async function () {
     total_price_element.innerHTML = "Total: " + total_price.toFixed(2) + "€";
 });
 
+function setCookie(name, value, days) {
+    var expires = "";
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "") + expires + "; path=/";
+}
+
 async function checkForUserCookie() {
-    let user_cookie = document.cookie;
+    let user_cookie = document.cookie.split("=")[1];
     if (user_cookie.length > 0) {
-        httpGetText("http://127.0.0.1:5000/check_cookie/" + user_cookie).then(
+        httpGetText(
+            "http://10.183.210.108:5000/check_cookie/" + user_cookie
+        ).then((response) => {
+            if (response == "Cookie found") {
+                return;
+            } else {
+                httpGetJson("http://10.183.210.108:5000/get_cookie").then(
+                    (response) => {
+                        console.log(response);
+                        setCookie("user_id", response.user_id, 7); // Set/replace the 'user_id' cookie
+                    }
+                );
+            }
+        });
+    } else {
+        httpGetJson("http://10.183.210.108:5000/get_cookie").then(
             (response) => {
-                if (response == "Cookie found") {
-                    return;
-                } else {
-                    httpGetJson("http://127.0.0.1:5000/get_cookie").then(
-                        (response) => {
-                            console.log(response);
-                            document.cookie = response.user_id;
-                        }
-                    );
-                }
+                console.log(response);
+                setCookie("user_id", response.user_id, 7); // Set/replace the 'user_id' cookie
+                console.log("doc cookier" + document.cookie);
             }
         );
-    } else {
-        httpGetJson("http://127.0.0.1:5000/get_cookie").then((response) => {
-            console.log(response);
-            document.cookie = response.user_id;
-        });
     }
 }

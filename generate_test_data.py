@@ -217,13 +217,13 @@ for i in range(num_pictures):
         price = random.randint(1, 100) / 100
         
     elif price_category == 2:
-        price = random.randint(1, 1000000) / 10
+        price = random.randint(1, 1000000000) / 1000
         
     elif price_category == 3:
         price = random.randint(1, 100) / 10
         
     elif price_category == 4:
-        price = 42.99
+        price = random.randint(1, 1000000) / 10
         
     elif price_category == 5:
         price = random.randint(1, 500) / 10

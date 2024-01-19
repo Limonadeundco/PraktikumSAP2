@@ -177,3 +177,24 @@ button {
     width: 13vw;
     height: 9vh;
 }
+
+.error-message {
+    color: red;
+    font-size: 1.5vw;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+}
+
+.success-message {
+    color: limegreen;
+    font-size: 1.5vw;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+}
+
+.fade-out {
+    transition: opacity 1s ease-out;
+    opacity: 0;
+}
