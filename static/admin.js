@@ -40,7 +40,7 @@ async function addProduct() {
     let product_count = document.getElementById("product_count").value;
 
     let response = await httpGetJson(
-        "http://10.183.210.108:5000/add_product/name=" +
+        "https://silver-goldfish-7xg65j5rx5xhww4g-5000.app.github.dev/add_product/name=" +
             product_name +
             "&price=" +
             product_price +
@@ -99,7 +99,7 @@ function sendImageToServer(image) {
     var formData = new FormData();
     formData.append("image", image, image.name);
     fetch(
-        "http://10.183.210.108:5000/add_image/product/" +
+        "https://silver-goldfish-7xg65j5rx5xhww4g-5000.app.github.dev/add_image/product/" +
             product_id +
             "/" +
             image_id,

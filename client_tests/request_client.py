@@ -1,7 +1,7 @@
 import requests
 import json
 
-url = "http://10.183.210.108:5000/clear_basket/*"
+url = "https://silver-goldfish-7xg65j5rx5xhww4g-5000.app.github.dev/clear_basket/*"
 
 response = requests.delete(url)
 

@@ -712,4 +712,4 @@ def check_auth(user, password):
 ################################################################    
 if __name__ == "__main__":
     Server = Server()
-    app.run(debug=True, port=5000, host="10.183.210.108")
+    app.run(debug=True, port=5000, host="0.0.0.0")

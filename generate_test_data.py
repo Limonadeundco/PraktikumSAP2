@@ -100,7 +100,7 @@ print(os.getcwd())
 os.makedirs(output_directory, exist_ok=True)
 
 font_size = 30
-font = ImageFont.truetype("arial.ttf", font_size)
+font = ImageFont.truetype('arial.ttf', font_size)
 
 # Loop to generate the pictures
 for i in range(num_pictures):

@@ -25,4 +25,4 @@ def replace_url(old_url, new_url, reverse=False):
 # Usage example
 #replace_url('http://127.0.0.1:5500', 'https://silver-goldfish-7xg65j5rx5xhww4g-5500.app.github.dev', False)
 #replace_url('https://silver-goldfish-7xg65j5rx5xhww4g-5500.app.github.dev', 'http://127.0.0.1:5500', True)
-replace_url('http://127.0.0.1:5000', 'http://10.183.210.108:5000', False)
+replace_url('https://silver-goldfish-7xg65j5rx5xhww4g-5000.app.github.dev', 'https://silver-goldfish-7xg65j5rx5xhww4g-5000.app.github.dev/', True)

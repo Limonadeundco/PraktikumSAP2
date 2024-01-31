@@ -28,21 +28,9 @@ async function httpGetText(url) {
         });
 }
 
-// Read the basket ID from the cookie
-function getBasketIdFromCookie() {
-    const cookies = document.cookie.split("=")[1].split(";");
-    for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        if (cookie.startsWith("basketId=")) {
-            return cookie.substring("basketId=".length, cookie.length);
-        }
-    }
-    return null;
-}
-
 async function getInfosForProductID(product_id) {
     let response = await httpGetJson(
-        "http://10.183.210.108:5000/get_product/" + product_id
+        "https://silver-goldfish-7xg65j5rx5xhww4g-5000.app.github.dev/get_product/" + product_id
     );
     let product_infos = response.product;
 
@@ -51,7 +39,7 @@ async function getInfosForProductID(product_id) {
 
 async function getProductsForBasketId(basket_id) {
     let response = await httpGetJson(
-        "http://10.183.210.108:5000/get_basket_for_user/" + basket_id
+        "https://silver-goldfish-7xg65j5rx5xhww4g-5000.app.github.dev/get_basket_for_user/" + basket_id
     );
     let basket_products = response.basket;
 
@@ -61,7 +49,8 @@ async function getProductsForBasketId(basket_id) {
 window.addEventListener("load", async function () {
     await checkForUserCookie();
 
-    let basket_id = document.cookie.split("=")[1];
+    let basket_id = document.cookie.split("user_id=")[1];
+    basket_id = basket_id.split(";")[0];
     let basket_products = await getProductsForBasketId(basket_id);
 
     console.log(basket_products);
@@ -111,24 +100,36 @@ function setCookie(name, value, days) {
 }
 
 async function checkForUserCookie() {
-    let user_cookie = document.cookie.split("=")[1];
-    if (user_cookie.length > 0) {
-        httpGetText(
-            "http://10.183.210.108:5000/check_cookie/" + user_cookie
-        ).then((response) => {
-            if (response == "Cookie found") {
-                return;
-            } else {
-                httpGetJson("http://10.183.210.108:5000/get_cookie").then(
-                    (response) => {
-                        console.log(response);
-                        setCookie("user_id", response.user_id, 7); // Set/replace the 'user_id' cookie
-                    }
-                );
-            }
-        });
+    if (document.cookie != null) {
+        let user_cookie = document.cookie.split("user_id=")[1];
+        user_cookie = user_cookie.split(";")[0];
+
+        if (user_cookie.length > 0) {
+            httpGetText(
+                "https://silver-goldfish-7xg65j5rx5xhww4g-5000.app.github.dev/check_cookie/" + user_cookie
+            ).then((response) => {
+                if (response == "Cookie found") {
+                    return;
+                } else {
+                    httpGetJson("https://silver-goldfish-7xg65j5rx5xhww4g-5000.app.github.dev/get_cookie").then(
+                        (response) => {
+                            console.log(response);
+                            setCookie("user_id", response.user_id, 7); // Set/replace the 'user_id' cookie
+                        }
+                    );
+                }
+            });
+        } else {
+            httpGetJson("https://silver-goldfish-7xg65j5rx5xhww4g-5000.app.github.dev/get_cookie").then(
+                (response) => {
+                    console.log(response);
+                    setCookie("user_id", response.user_id, 7); // Set/replace the 'user_id' cookie
+                    console.log("doc cookier" + document.cookie);
+                }
+            );
+        }
     } else {
-        httpGetJson("http://10.183.210.108:5000/get_cookie").then(
+        httpGetJson("https://silver-goldfish-7xg65j5rx5xhww4g-5000.app.github.dev/get_cookie").then(
             (response) => {
                 console.log(response);
                 setCookie("user_id", response.user_id, 7); // Set/replace the 'user_id' cookie
